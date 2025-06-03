@@ -2,6 +2,7 @@
 import { GetServerSideProps } from 'next';
 import { format, toZonedTime } from 'date-fns-tz';
 import { RelevantWeekStatus } from '../lib/weekLogic';
+import Head from 'next/head';
 
 interface HomeProps {
   weekStatus: RelevantWeekStatus;
@@ -24,19 +25,60 @@ export default function Home({ weekStatus, currentDate }: HomeProps) {
     }
   };
 
-  const getWeekStatusColor = (status: string) => {
+  const getBgClass = (status: string) => {
     switch (status) {
       case 'recycling_week':
-        return 'text-blue-600 bg-blue-50 border-blue-200';
+        return 'recycling-bg';
       case 'yard_waste_week':
-        return 'text-green-600 bg-green-50 border-green-200';
+        return 'yard-waste-bg';
       case 'normal_trash_week':
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+        return 'normal-trash-bg';
       case 'no_pickup_week':
-        return 'text-red-600 bg-red-50 border-red-200';
+        return 'no-pickup-bg';
       default:
-        return 'text-gray-600 bg-gray-50 border-gray-200';
+        return 'normal-trash-bg';
     }
+  };
+
+  const getEmoji = (status: string) => {
+    switch (status) {
+      case 'recycling_week':
+        return '♻️';
+      case 'yard_waste_week':
+        return '🌿';
+      case 'normal_trash_week':
+        return '🗑️';
+      case 'no_pickup_week':
+        return '❌';
+      default:
+        return '🗑️';
+    }
+  };
+
+  const getTitle = (status: string) => {
+    switch (status) {
+      case 'recycling_week':
+        return 'Recycling';
+      case 'yard_waste_week':
+        return 'Yard Waste';
+      case 'normal_trash_week':
+        return 'Trash Only';
+      case 'no_pickup_week':
+        return 'No Pickup';
+      default:
+        return 'Trash Only';
+    }
+  };
+
+  const getDetail = (weekStatus: RelevantWeekStatus) => {
+    if (weekStatus.specialPickupDayInWeek && weekStatus.specialPickupTypeOnDate) {
+      const type = weekStatus.specialPickupTypeOnDate === 'recycling' ? '♻️ Recycling' : '🌿 Yard Waste';
+      return `${type} Day: ${formatDate(weekStatus.specialPickupDayInWeek)}`;
+    }
+    if (weekStatus.weekStatus === 'normal_trash_week') {
+      return 'Regular weekly pickup';
+    }
+    return null;
   };
 
   const formatDate = (dateString: string) => {
@@ -45,70 +87,30 @@ export default function Home({ weekStatus, currentDate }: HomeProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            Truckee Trash
-          </h1>
-          <p className="text-gray-600">
-            Current Date: {formatDate(currentDate)}
-          </p>
-        </div>
-
-        <div className={`bg-white rounded-lg shadow-lg p-8 border-2 ${getWeekStatusColor(weekStatus.weekStatus)}`}>
-          <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">
-              {getWeekDisplayName(weekStatus.weekStatus)}
-            </h2>
-            
-            <div className="text-lg mb-6">
-              <p className="font-semibold text-gray-800">
-                Service Week: {formatDate(weekStatus.reportedWeek.startDate)} - {formatDate(weekStatus.reportedWeek.endDate)}
-              </p>
-            </div>
-
-            {weekStatus.specialPickupDayInWeek && weekStatus.specialPickupTypeOnDate && (
-              <div className="bg-white bg-opacity-60 rounded-lg p-4 mb-4">
-                <h3 className="text-xl font-semibold mb-2">Special Pickup</h3>
-                <p className="text-lg">
-                  {weekStatus.specialPickupTypeOnDate === 'recycling' ? 'Recycling' : 'Yard Waste'} Day: {formatDate(weekStatus.specialPickupDayInWeek)}
-                </p>
-              </div>
-            )}
-
-            <div className="text-base text-gray-700">
-              {weekStatus.weekStatus === 'recycling_week' && (
-                <div>
-                  <p className="mb-2">🗂️ <strong>Recycling pickup</strong> this week</p>
-                  <p>Regular trash is also collected on the same day</p>
-                </div>
-              )}
-              {weekStatus.weekStatus === 'yard_waste_week' && (
-                <div>
-                  <p className="mb-2">🌿 <strong>Yard waste pickup</strong> this week</p>
-                  <p>Regular trash is also collected on the same day</p>
-                </div>
-              )}
-              {weekStatus.weekStatus === 'normal_trash_week' && (
-                <div>
-                  <p className="mb-2">🗑️ <strong>Regular trash only</strong> this week</p>
-                  <p>Pickup available Monday through Friday</p>
-                </div>
-              )}
-              {weekStatus.weekStatus === 'no_pickup_week' && (
-                <div>
-                  <p className="mb-2">❌ <strong>No pickup services</strong> this week</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>Schedule updates automatically based on official Truckee waste collection calendar</p>
-        </div>
-      </div>
+    <div className={`page-container ${getBgClass(weekStatus.weekStatus)}`}>
+      <Head>
+        <title>Truckee Trash</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <main className="status-display">
+        <div className="status-emoji" aria-label="emoji">{getEmoji(weekStatus.weekStatus)}</div>
+        <h1 className="status-title">{getTitle(weekStatus.weekStatus)}</h1>
+        <p className="status-date-range">
+          {formatDate(weekStatus.reportedWeek.startDate)} – {formatDate(weekStatus.reportedWeek.endDate)}
+        </p>
+        {getDetail(weekStatus) && (
+          <p className="status-detail">{getDetail(weekStatus)}</p>
+        )}
+      </main>
+      <footer className="page-footer">
+        <a
+          href="https://www.keeptruckeegreen.org/wp-content/uploads/2025/04/Recycling-Calendar-2025-2026.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Official Truckee Recycling & Trash Calendar (Source)
+        </a>
+      </footer>
     </div>
   );
 }
