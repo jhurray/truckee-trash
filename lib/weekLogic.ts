@@ -1,5 +1,5 @@
 // lib/weekLogic.ts
-import { toZonedTime, format } from 'date-fns-tz';
+import { toZonedTime, format, fromZonedTime } from 'date-fns-tz';
 import { parseISO, getDay, addDays, startOfWeek, isValid, eachDayOfInterval } from 'date-fns';
 import { getDayPickupTypeLogic, DayPickupType } from './pickupLogic';
 
@@ -19,27 +19,27 @@ export interface RelevantWeekStatus {
 
 export function getRelevantWeekStatusLogic(currentDateString: string): RelevantWeekStatus | { error: string } {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(currentDateString)) {
-    return { error: "currentDate parameter must be in YYYY-MM-DD format." };
+    return { error: "currentDate parameter must be in yyyy-MM-dd format." };
   }
 
-  const parsedCurrentDate = parseISO(currentDateString); // Represents UTC midnight
-  if (!isValid(parsedCurrentDate)) {
+  const currentDateUtcEquivalent = fromZonedTime(currentDateString, TRUCKEE_TIMEZONE);
+  if (!isValid(currentDateUtcEquivalent)) {
       return { error: "Invalid currentDate." };
   }
-  // Convert the UTC midnight representation to the actual date in Truckee
-  const currentDateInTruckee = toZonedTime(parsedCurrentDate, TRUCKEE_TIMEZONE);
+
+  const isoDayOfWeekForCurrentDate = parseInt(format(currentDateUtcEquivalent, 'i', { timeZone: TRUCKEE_TIMEZONE }), 10);
+  const dayOfWeekInTruckee = isoDayOfWeekForCurrentDate % 7; // JS: 0=Sun, 1=Mon...
 
   let serviceWeekStartInTruckee: Date;
-  const dayOfWeekInTruckee = getDay(currentDateInTruckee); // 0 (Sun) to 6 (Sat)
 
-  // Determine the Monday of the service week to report on
+  // Use currentDateUtcEquivalent for date math (addDays, startOfWeek)
   if (dayOfWeekInTruckee === 0 || dayOfWeekInTruckee === 6) { // Sunday or Saturday
-    // Report next week. Find next Monday.
-    const daysToNextMonday = dayOfWeekInTruckee === 0 ? 1 : 2; // Sunday: add 1 day, Saturday: add 2 days
-    serviceWeekStartInTruckee = addDays(currentDateInTruckee, daysToNextMonday);
+    // Report next week.
+    const daysToNextMonday = dayOfWeekInTruckee === 0 ? 1 : 2; // If Sun, next day is Mon. If Sat, 2 days to Mon.
+    serviceWeekStartInTruckee = addDays(currentDateUtcEquivalent, daysToNextMonday);
   } else { // Monday to Friday
-    // Report current week. Find current Monday.
-    serviceWeekStartInTruckee = startOfWeek(currentDateInTruckee, { weekStartsOn: 1 });
+    // Report current week.
+    serviceWeekStartInTruckee = startOfWeek(currentDateUtcEquivalent, { weekStartsOn: 1 }); // weekStartsOn: 1 is Monday
   }
 
   const serviceWeekEndInTruckee = addDays(serviceWeekStartInTruckee, 4); // Monday + 4 days = Friday

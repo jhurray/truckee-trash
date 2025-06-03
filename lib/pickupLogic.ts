@@ -1,6 +1,6 @@
 // lib/pickupLogic.ts
-import { toZonedTime, format } from 'date-fns-tz';
-import { parseISO, getDay, isValid } from 'date-fns';
+import { toZonedTime, format, fromZonedTime } from 'date-fns-tz';
+import { parseISO, isValid } from 'date-fns';
 import { allRecyclingDates, allYardWasteDates } from './pickupData';
 
 export type DayPickupType =
@@ -18,33 +18,29 @@ export function getDayPickupTypeLogic(dateString: string): GetDayPickupTypeResul
     return { error: "invalid_date_format" };
   }
 
-  // Parse the date string. IMPORTANT: date-fns parseISO treats date-only strings as UTC.
-  // To correctly interpret it as a local date in Truckee, we effectively treat the input YYYY-MM-DD
-  // as "that date at midnight in Truckee".
-  const parsedDate = parseISO(dateString); // This is YYYY-MM-DD_T00:00:00Z_
-  if (!isValid(parsedDate)) {
-      return { error: "invalid_date_format" }; // Should be caught by regex, but good practice
+  const representativeUtcDateForTruckeeDay = fromZonedTime(dateString, TRUCKEE_TIMEZONE);
+  if (!isValid(representativeUtcDateForTruckeeDay)) {
+    return { error: "invalid_date_format" }; // Handles cases like "2025-02-30"
   }
 
-  // The `dateString` itself is what we check against our sets.
-  // For day-of-week logic, we need to know what day it is *in Truckee*.
-  // `toZonedTime` converts a UTC Date object to a Date object whose local parts reflect the target timezone.
-  const dateInTruckee = toZonedTime(parsedDate, TRUCKEE_TIMEZONE);
-
+  // Check against corrected special pickup date sets
   if (allRecyclingDates.has(dateString)) {
-    return { type: "recycling", dateInTruckee };
+    return { type: "recycling", dateInTruckee: representativeUtcDateForTruckeeDay };
   }
   if (allYardWasteDates.has(dateString)) {
-    return { type: "yard_waste", dateInTruckee };
+    return { type: "yard_waste", dateInTruckee: representativeUtcDateForTruckeeDay };
   }
 
-  // `getDay` from `date-fns` returns 0 for Sunday, 1 for Monday, ..., 6 for Saturday.
-  // We need the day of the week as it is in Truckee for the given `dateString`.
-  const dayOfWeekInTruckee = getDay(dateInTruckee); // 0 (Sun) to 6 (Sat)
+  // Determine the day of the week for 'dateString' as experienced in Truckee.
+  // 'i' gives ISO day of week: 1 for Monday, ..., 7 for Sunday.
+  const isoDayOfWeekInTruckee = parseInt(format(representativeUtcDateForTruckeeDay, 'i', { timeZone: TRUCKEE_TIMEZONE }), 10);
 
-  if (dayOfWeekInTruckee >= 1 && dayOfWeekInTruckee <= 5) { // Monday to Friday
-    return { type: "trash_only", dateInTruckee };
+  // Convert ISO day (1=Mon...7=Sun) to JavaScript standard day (0=Sun...6=Sat)
+  const jsDayOfWeekInTruckee = isoDayOfWeekInTruckee % 7;
+
+  if (jsDayOfWeekInTruckee >= 1 && jsDayOfWeekInTruckee <= 5) { // Monday to Friday
+    return { type: "trash_only", dateInTruckee: representativeUtcDateForTruckeeDay };
   } else { // Saturday or Sunday
-    return { type: "no_pickup", dateInTruckee };
+    return { type: "no_pickup", dateInTruckee: representativeUtcDateForTruckeeDay };
   }
 }

@@ -12,12 +12,28 @@ describe('getDayPickupTypeLogic', () => {
     const result = getDayPickupTypeLogic('2025-05-02');
     expect('type' in result).toBe(true);
     if ('type' in result) {
-      expect(result.type).toBe('recycling');
+      expect(result.type).toBe('yard_waste');
     }
   });
 
   test('should return yard_waste for yard waste dates', () => {
     const result = getDayPickupTypeLogic('2025-05-09');
+    expect('type' in result).toBe(true);
+    if ('type' in result) {
+      expect(result.type).toBe('recycling');
+    }
+  });
+
+  test('should return recycling for June 6, 2025 (corrected from PDF)', () => {
+    const result = getDayPickupTypeLogic('2025-06-06');
+    expect('type' in result).toBe(true);
+    if ('type' in result) {
+      expect(result.type).toBe('recycling');
+    }
+  });
+
+  test('should return yard_waste for June 13, 2025 (corrected from PDF)', () => {
+    const result = getDayPickupTypeLogic('2025-06-13');
     expect('type' in result).toBe(true);
     if ('type' in result) {
       expect(result.type).toBe('yard_waste');
@@ -28,7 +44,7 @@ describe('getDayPickupTypeLogic', () => {
     const result = getDayPickupTypeLogic('2025-07-03');
     expect('type' in result).toBe(true);
     if ('type' in result) {
-      expect(result.type).toBe('yard_waste');
+      expect(result.type).toBe('trash_only');
     }
   });
 
@@ -62,45 +78,42 @@ describe('getDayPickupTypeLogic', () => {
     }
   });
 
-  test('should test various 2025 recycling dates', () => {
+  describe('should test various 2025 recycling dates', () => {
     const recyclingDates = [
-      '2025-05-02', '2025-05-16', '2025-05-30',
-      '2025-06-13', '2025-06-27',
-      '2025-07-11', '2025-07-25',
-      '2025-08-08', '2025-08-22',
-      '2025-09-05', '2025-09-19',
-      '2025-10-03', '2025-10-17', '2025-10-31',
-      '2025-11-14', '2025-11-28',
-      '2025-12-12', '2025-12-26',
+      "2025-05-09", "2025-05-23", "2025-06-06", "2025-06-20",
+      "2025-07-04", "2025-07-18", "2025-08-01", "2025-08-15",
+      "2025-08-29", "2025-09-12", "2025-09-26", "2025-10-10",
+      "2025-10-24", "2025-11-07", "2025-11-21", "2025-12-05",
+      "2025-12-19",
     ];
-
     recyclingDates.forEach(date => {
-      const result = getDayPickupTypeLogic(date);
-      expect('type' in result).toBe(true);
-      if ('type' in result) {
-        expect(result.type).toBe('recycling');
-      }
+      test(`getDayPickupTypeLogic('${date}') should be recycling`, () => {
+        const result = getDayPickupTypeLogic(date);
+        expect('error' in result).toBe(false);
+        expect('type' in result).toBe(true);
+        if ('type' in result) {
+          expect(result.type).toBe('recycling');
+        }
+      });
     });
   });
 
-  test('should test various 2025 yard waste dates', () => {
+  describe('should test various 2025 yard waste dates', () => {
     const yardWasteDates = [
-      '2025-05-09', '2025-05-23',
-      '2025-06-06', '2025-06-20',
-      '2025-07-03', // Thursday special case
-      '2025-07-18',
-      '2025-08-01', '2025-08-15', '2025-08-29',
-      '2025-09-12', '2025-09-26',
-      '2025-10-10', '2025-10-24',
-      '2025-11-07', '2025-11-21',
+      "2025-05-02", "2025-05-16", "2025-05-30", "2025-06-13",
+      "2025-06-27", "2025-07-11", "2025-07-25", "2025-08-08",
+      "2025-08-22", "2025-09-05", "2025-09-19", "2025-10-03",
+      "2025-10-17", "2025-10-31", "2025-11-14", "2025-11-28",
     ];
-
     yardWasteDates.forEach(date => {
-      const result = getDayPickupTypeLogic(date);
-      expect('type' in result).toBe(true);
-      if ('type' in result) {
-        expect(result.type).toBe('yard_waste');
-      }
+      test(`getDayPickupTypeLogic('${date}') should be yard_waste`, () => {
+        const result = getDayPickupTypeLogic(date);
+        expect('error' in result).toBe(false);
+        expect('type' in result).toBe(true);
+        if ('type' in result) {
+          expect(result.type).toBe('yard_waste');
+        }
+      });
     });
   });
 });
