@@ -15,28 +15,32 @@ export default function TestIndexPage() {
   };
 
   return (
-    <div className="page-container">
+    <div className="week-status-container normal-trash-bg">
       <Head>
         <title>Select a Date - Truckee Trash Test</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <main className="status-display" style={{ textAlign: 'center', paddingTop: '50px' }}>
-        <h1>Select a Date</h1>
-        <p>Choose a date to view its trash and recycling status.</p>
+      <main className="week-status-content">
+        <div className="week-status-emoji">📅</div>
+        <h1 className="week-status-title">Test Any Date</h1>
+        <p className="week-status-subtitle">Choose a date to see pickup status</p>
         <input
           type="date"
           value={selectedDate}
           onChange={handleDateChange}
-          style={{ padding: '10px', fontSize: '16px', marginTop: '20px' }}
+          style={{ 
+            padding: '1rem', 
+            fontSize: '1.2rem', 
+            marginTop: '2rem',
+            borderRadius: '8px',
+            border: '2px solid white',
+            background: 'rgba(255,255,255,0.9)',
+            color: '#333'
+          }}
         />
-        {selectedDate && (
-          <p style={{ marginTop: '20px' }}>
-            Navigating to status for: {selectedDate}
-          </p>
-        )}
       </main>
-      <footer className="page-footer">
-        <p>Choose a date to see the pickup schedule.</p>
+      <footer className="week-status-footer">
+        <a href="/">← Back to Current Week</a>
       </footer>
     </div>
   );

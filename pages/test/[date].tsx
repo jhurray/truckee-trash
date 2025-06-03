@@ -1,10 +1,11 @@
 import { GetServerSideProps } from 'next';
-import { format, toZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns-tz';
 import { isValid, parseISO } from 'date-fns';
 import { RelevantWeekStatus } from '../../lib/weekLogic';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
+import WeekStatusDisplay from '../../components/WeekStatusDisplay';
 
 interface TestPageProps {
   weekStatus: RelevantWeekStatus;
@@ -28,141 +29,71 @@ export default function TestPage({ weekStatus, inputDate, error }: TestPageProps
     }
   };
 
-  const getWeekDisplayName = (status: string) => {
-    switch (status) {
-      case 'recycling_week':
-        return 'Recycling Week';
-      case 'yard_waste_week':
-        return 'Yard Waste Week';
-      case 'normal_trash_week':
-        return 'Normal Trash Week';
-      case 'no_pickup_week':
-        return 'No Pickup Week';
-      default:
-        return 'Unknown';
-    }
-  };
-
-  const getBgClass = (status: string) => {
-    switch (status) {
-      case 'recycling_week':
-        return 'recycling-bg';
-      case 'yard_waste_week':
-        return 'yard-waste-bg';
-      case 'normal_trash_week':
-        return 'normal-trash-bg';
-      case 'no_pickup_week':
-        return 'no-pickup-bg';
-      default:
-        return 'normal-trash-bg';
-    }
-  };
-
-  const getEmoji = (status: string) => {
-    switch (status) {
-      case 'recycling_week':
-        return '♻️';
-      case 'yard_waste_week':
-        return '🌿';
-      case 'normal_trash_week':
-        return '🗑️';
-      case 'no_pickup_week':
-        return '❌';
-      default:
-        return '🗑️';
-    }
-  };
-
-  const getTitle = (status: string) => {
-    switch (status) {
-      case 'recycling_week':
-        return 'Recycling';
-      case 'yard_waste_week':
-        return 'Yard Waste';
-      case 'normal_trash_week':
-        return 'Trash Only';
-      case 'no_pickup_week':
-        return 'No Pickup';
-      default:
-        return 'Trash Only';
-    }
-  };
-
   const formatDateDisplay = (dateString: string) => {
     const date = parseISO(dateString);
     return format(date, 'MMM d, yyyy');
   };
-  
-  const getDetail = (status: RelevantWeekStatus) => {
-    if (status.specialPickupDayInWeek && status.specialPickupTypeOnDate) {
-      const type = status.specialPickupTypeOnDate === 'recycling' ? '♻️ Recycling' : '🌿 Yard Waste';
-      return `${type} Day: ${formatDateDisplay(status.specialPickupDayInWeek)}`;
-    }
-    if (status.weekStatus === 'normal_trash_week') {
-      return 'Regular weekly pickup';
-    }
-    return null;
-  };
 
   if (error) {
     return (
-      <div className="page-container error-bg">
+      <div className="week-status-container no-pickup-bg">
         <Head>
           <title>Error - Truckee Trash</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
-        <main className="status-display">
-          <div className="status-emoji" aria-label="error-emoji">⚠️</div>
-          <h1 className="status-title">Error</h1>
-          <p className="status-detail">{error}</p>
+        <main className="week-status-content">
+          <div className="week-status-emoji">⚠️</div>
+          <h1 className="week-status-title">Error</h1>
+          <p className="week-status-subtitle">{error}</p>
         </main>
+        <footer className="week-status-footer">
+          <a href="/test">← Choose Another Date</a>
+        </footer>
       </div>
     );
   }
 
   return (
-    <div className={`page-container ${getBgClass(weekStatus.weekStatus)}`}>
+    <>
       <Head>
-        <title>Truckee Trash Status for {inputDate}</title>
+        <title>Truckee Trash - {formatDateDisplay(inputDate)}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', backgroundColor: 'rgba(0,0,0,0.1)' }}>
-        <h2 style={{ margin: 0, fontSize: '1.2em' }}>Trash Status</h2>
-        <div>
-          <label htmlFor="date-picker" style={{ marginRight: '8px' }}>Change Date:</label>
-          <input
-            type="date"
-            id="date-picker"
-            value={selectedDate}
-            onChange={handleDateChange}
-            style={{ padding: '8px', fontSize: '1em' }}
-          />
+      
+      {/* Date picker overlay */}
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        background: 'rgba(0,0,0,0.8)',
+        color: 'white',
+        padding: '1rem',
+        borderRadius: '8px',
+        fontSize: '0.9rem',
+        zIndex: 1000,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.5rem'
+      }}>
+        <div style={{ fontWeight: 'bold' }}>
+          Test Date: {formatDateDisplay(inputDate)}
         </div>
-      </header>
-      <main className="status-display">
-        <div className="status-emoji" aria-label="emoji">{getEmoji(weekStatus.weekStatus)}</div>
-        <h1 className="status-title">{getTitle(weekStatus.weekStatus)}</h1>
-        <p className="status-date-range">
-          For date: {formatDateDisplay(inputDate)}
-        </p>
-        <p className="status-date-range">
-          Week: {formatDateDisplay(weekStatus.reportedWeek.startDate)} – {formatDateDisplay(weekStatus.reportedWeek.endDate)}
-        </p>
-        {getDetail(weekStatus) && (
-          <p className="status-detail">{getDetail(weekStatus)}</p>
-        )}
-      </main>
-      <footer className="page-footer">
-        <p>Displaying status for: {inputDate}</p>
-        <a
-          href="https://www.keeptruckeegreen.org/wp-content/uploads/2025/04/Recycling-Calendar-2025-2026.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Official Truckee Recycling & Trash Calendar (Source)
-        </a>
-      </footer>
-    </div>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+          style={{
+            padding: '0.5rem',
+            borderRadius: '4px',
+            border: 'none',
+            fontSize: '0.9rem'
+          }}
+        />
+        <a href="/test" style={{ color: 'white', textAlign: 'center' }}>← Back</a>
+      </div>
+
+      <WeekStatusDisplay weekStatus={weekStatus} />
+    </>
   );
 }
 

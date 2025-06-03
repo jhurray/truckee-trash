@@ -1,85 +1,149 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html {
   height: 100%;
-  box-sizing: border-box;
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: white;
-  background: none;
+  overflow: hidden; /* Prevent scrolling issues */
+}
+
+body {
+  height: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow: hidden; /* Prevent body scroll */
 }
 
 #__next {
   height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.yard-waste-bg { background-color: #A0B94B; color: white; }
-.recycling-bg { background-color: #2196C9; color: white; }
-.normal-trash-bg { background-color: #5C5C5C; color: white; }
-.no-pickup-bg { background-color: #333333; color: white; }
-
-.page-footer {
-  padding: 24px 20px;
-  text-align: center;
-  font-size: 0.85rem;
   width: 100%;
-  color: rgba(255,255,255,0.7);
-}
-.page-footer a {
-  color: rgba(255,255,255,0.9);
-  text-decoration: underline;
-  font-weight: 500;
-}
-.page-footer a:hover {
-  text-decoration: none;
-  opacity: 1;
+  overflow: hidden;
 }
 
-.status-display {
+/* Week Status Container - Full viewport, no scroll */
+.week-status-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+/* High contrast background colors */
+.recycling-bg { 
+  background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+  color: white; 
+}
+.yard-waste-bg { 
+  background: linear-gradient(135deg, #228B22 0%, #006400 100%);
+  color: white; 
+}
+.normal-trash-bg { 
+  background: linear-gradient(135deg, #2F2F2F 0%, #1A1A1A 100%);
+  color: white; 
+}
+.no-pickup-bg { 
+  background: linear-gradient(135deg, #8B0000 0%, #550000 100%);
+  color: white; 
+}
+
+/* Main content area */
+.week-status-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 70vh;
-  text-align: center;
+  flex: 1;
+  padding: 2rem;
+  max-width: 90vw;
 }
 
-.status-emoji {
-  font-size: 7rem;
-  margin-bottom: 1.5rem;
+/* Massive emoji display */
+.week-status-emoji {
+  font-size: clamp(8rem, 20vw, 16rem);
   line-height: 1;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.10));
+  margin-bottom: clamp(1rem, 3vw, 2rem);
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.status-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.01em;
+/* Clear, bold messaging */
+.week-status-title {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 800;
+  margin-bottom: clamp(0.5rem, 2vw, 1rem);
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  line-height: 1.1;
 }
 
-.status-date-range {
-  font-size: 1.25rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
+.week-status-subtitle {
+  font-size: clamp(1.2rem, 3.5vw, 2rem);
+  font-weight: 600;
   opacity: 0.95;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  line-height: 1.3;
+  max-width: 80vw;
 }
 
-.status-detail {
-  font-size: 1.1rem;
-  font-weight: 400;
-  margin-bottom: 1.5rem;
-  opacity: 0.85;
+/* Footer */
+.week-status-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  text-align: center;
+  background: rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.week-status-footer a {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.week-status-footer a:hover {
+  color: white;
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .week-status-content {
+    padding: 1rem;
+  }
+  
+  .week-status-footer {
+    padding: 1rem;
+  }
+  
+  .week-status-footer a {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Prevent any scrolling or overflow anywhere */
+html, body, #__next, .week-status-container {
+  overflow: hidden !important;
 }
