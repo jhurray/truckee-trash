@@ -3,6 +3,8 @@ import { format, toZonedTime } from 'date-fns-tz';
 import { isValid, parseISO } from 'date-fns';
 import { RelevantWeekStatus } from '../../lib/weekLogic';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 
 interface TestPageProps {
   weekStatus: RelevantWeekStatus;
@@ -11,6 +13,21 @@ interface TestPageProps {
 }
 
 export default function TestPage({ weekStatus, inputDate, error }: TestPageProps) {
+  const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState(inputDate);
+
+  useEffect(() => {
+    setSelectedDate(inputDate);
+  }, [inputDate]);
+
+  const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = event.target.value;
+    setSelectedDate(date);
+    if (date) {
+      router.push(`/test/${date}`);
+    }
+  };
+
   const getWeekDisplayName = (status: string) => {
     switch (status) {
       case 'recycling_week':
@@ -72,7 +89,6 @@ export default function TestPage({ weekStatus, inputDate, error }: TestPageProps
   };
 
   const formatDateDisplay = (dateString: string) => {
-    // Dates from weekLogic are yyyy-MM-dd
     const date = parseISO(dateString);
     return format(date, 'MMM d, yyyy');
   };
@@ -110,6 +126,19 @@ export default function TestPage({ weekStatus, inputDate, error }: TestPageProps
         <title>Truckee Trash Status for {inputDate}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 20px', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+        <h2 style={{ margin: 0, fontSize: '1.2em' }}>Trash Status</h2>
+        <div>
+          <label htmlFor="date-picker" style={{ marginRight: '8px' }}>Change Date:</label>
+          <input
+            type="date"
+            id="date-picker"
+            value={selectedDate}
+            onChange={handleDateChange}
+            style={{ padding: '8px', fontSize: '1em' }}
+          />
+        </div>
+      </header>
       <main className="status-display">
         <div className="status-emoji" aria-label="emoji">{getEmoji(weekStatus.weekStatus)}</div>
         <h1 className="status-title">{getTitle(weekStatus.weekStatus)}</h1>
