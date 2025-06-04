@@ -1,0 +1,307 @@
+import SwiftUI
+import UserNotifications
+import TruckeeTrashKit
+
+struct OnboardingView: View {
+    @State private var selectedPickupDay: Int = 5 // Default to Friday
+    @State private var notificationPreference: NotificationPreference = .none
+    @State private var currentStep: OnboardingStep = .pickupDay
+    @State private var isRequestingPermissions = false
+    
+    let onComplete: () -> Void
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Background gradient
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.green.opacity(0.1)]),
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+                
+                VStack(spacing: 0) {
+                    // Progress indicator
+                    progressIndicator
+                    
+                    Spacer()
+                    
+                    // Main content
+                    VStack(spacing: 40) {
+                        switch currentStep {
+                        case .pickupDay:
+                            pickupDayStep
+                        case .notifications:
+                            notificationStep
+                        case .completing:
+                            completingStep
+                        }
+                    }
+                    .padding(.horizontal, 32)
+                    
+                    Spacer()
+                    
+                    // Bottom buttons
+                    bottomButtons
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, max(geometry.safeAreaInsets.bottom, 32))
+                }
+            }
+        }
+    }
+    
+    private var progressIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<3) { index in
+                Capsule()
+                    .fill(index <= currentStep.rawValue ? Color.blue : Color.gray.opacity(0.3))
+                    .frame(height: 4)
+                    .animation(.easeInOut(duration: 0.3), value: currentStep)
+            }
+        }
+        .padding(.horizontal, 32)
+        .padding(.top, 20)
+    }
+    
+    private var pickupDayStep: some View {
+        VStack(spacing: 32) {
+            VStack(spacing: 16) {
+                Text("🗑️")
+                    .font(.system(size: 80))
+                
+                Text("Welcome to Truckee Trash!")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                
+                Text("What day of the week is your trash pickup?")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            VStack(spacing: 12) {
+                ForEach(Weekday.allCases, id: \.self) { weekday in
+                    Button(action: {
+                        selectedPickupDay = weekday.rawValue
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            // Add haptic feedback
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                            impactFeedback.impactOccurred()
+                        }
+                    }) {
+                        HStack {
+                            Text(weekday.displayName)
+                                .font(.title3)
+                                .fontWeight(.medium)
+                            
+                            Spacer()
+                            
+                            if selectedPickupDay == weekday.rawValue {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .font(.title2)
+                            } else {
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 2)
+                                    .frame(width: 24, height: 24)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(selectedPickupDay == weekday.rawValue ? Color.blue.opacity(0.1) : Color.white)
+                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+        }
+    }
+    
+    private var notificationStep: some View {
+        VStack(spacing: 32) {
+            VStack(spacing: 16) {
+                Text("🔔")
+                    .font(.system(size: 80))
+                
+                Text("Stay Informed")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                
+                Text("When would you like to be reminded about trash day?")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            VStack(spacing: 12) {
+                ForEach(NotificationPreference.allCases, id: \.self) { preference in
+                    Button(action: {
+                        notificationPreference = preference
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                            impactFeedback.impactOccurred()
+                        }
+                    }) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(preference.title)
+                                    .font(.title3)
+                                    .fontWeight(.medium)
+                                
+                                Text(preference.description)
+                                    .font(.body)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if notificationPreference == preference {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .font(.title2)
+                            } else {
+                                Circle()
+                                    .stroke(Color.gray.opacity(0.3), lineWidth: 2)
+                                    .frame(width: 24, height: 24)
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(notificationPreference == preference ? Color.blue.opacity(0.1) : Color.white)
+                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+            }
+        }
+    }
+    
+    private var completingStep: some View {
+        VStack(spacing: 32) {
+            VStack(spacing: 16) {
+                Text("✅")
+                    .font(.system(size: 80))
+                
+                Text("All Set!")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                
+                Text("We're setting up your trash day reminders...")
+                    .font(.title2)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            ProgressView()
+                .scaleEffect(1.5)
+        }
+    }
+    
+    private var bottomButtons: some View {
+        VStack(spacing: 16) {
+            switch currentStep {
+            case .pickupDay:
+                Button(action: nextStep) {
+                    Text("Continue")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                }
+                
+            case .notifications:
+                Button(action: nextStep) {
+                    Text(isRequestingPermissions ? "Setting up..." : "Finish Setup")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(isRequestingPermissions ? Color.gray : Color.blue)
+                        .cornerRadius(12)
+                }
+                .disabled(isRequestingPermissions)
+                
+            case .completing:
+                EmptyView()
+            }
+        }
+    }
+    
+    private func nextStep() {
+        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+        impactFeedback.impactOccurred()
+        
+        switch currentStep {
+        case .pickupDay:
+            withAnimation(.easeInOut(duration: 0.3)) {
+                currentStep = .notifications
+            }
+            
+        case .notifications:
+            finishOnboarding()
+            
+        case .completing:
+            break
+        }
+    }
+    
+    private func finishOnboarding() {
+        withAnimation(.easeInOut(duration: 0.3)) {
+            currentStep = .completing
+        }
+        
+        // Save pickup day
+        UserDefaults.standard.set(selectedPickupDay, forKey: "selectedPickupDay")
+        UserDefaults.standard.set(notificationPreference.rawValue, forKey: "notificationPreference")
+        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        
+        if notificationPreference != .none {
+            isRequestingPermissions = true
+            
+            // Request notification permissions
+            UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+                DispatchQueue.main.async {
+                    UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
+                    
+                    if granted {
+                        scheduleNotifications()
+                    }
+                    
+                    // Complete onboarding after a brief delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        onComplete()
+                    }
+                }
+            }
+        } else {
+            UserDefaults.standard.set(false, forKey: "notificationsEnabled")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                onComplete()
+            }
+        }
+    }
+    
+    private func scheduleNotifications() {
+        // Implementation would go here - similar to existing notification scheduling
+        // This would use the notificationPreference to determine timing
+    }
+}
+
+
+#Preview {
+    OnboardingView(onComplete: {})
+}

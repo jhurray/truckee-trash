@@ -16,6 +16,9 @@ class ContentViewModel: ObservableObject {
     #if DEBUG
     @Published var testDate: Date? = nil
     @Published var isTestMode = false
+    var currentDate: Date { testDate ?? Date() }
+    #else
+    var currentDate: Date { Date() }
     #endif
     
     private let apiClient = TruckeeTrashKit.shared.apiClient

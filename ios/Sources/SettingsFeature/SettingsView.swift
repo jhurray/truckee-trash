@@ -1,9 +1,15 @@
 import SwiftUI
 import TruckeeTrashKit
+import UserNotifications
+
+extension Notification.Name {
+    static let resetAppSetup = Notification.Name("resetAppSetup")
+}
 
 public struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
     @Environment(\.dismiss) private var dismiss
+    @State private var showingResetAlert = false
     
     public init() {}
     
@@ -21,23 +27,26 @@ public struct SettingsView: View {
                 } header: {
                     Text("Pickup Schedule")
                 } footer: {
-                    Text("Select your preferred pickup day to see information for the next occurrence of that day. Notifications will be sent the evening before your selected day.")
+                    Text("Select your pickup day to see information for the next occurrence.")
                 }
                 
                 Section {
                     Toggle("Enable Notifications", isOn: $viewModel.notificationsEnabled)
                     
                     if viewModel.notificationsEnabled {
-                        DatePicker(
-                            "Notification Time",
-                            selection: $viewModel.notificationTime,
-                            displayedComponents: .hourAndMinute
-                        )
+                        Picker("Notification Timing", selection: $viewModel.notificationPreference) {
+                            ForEach(NotificationPreference.allCases, id: \.self) { preference in
+                                if preference != .none {
+                                    Text(preference.title)
+                                        .tag(preference.rawValue)
+                                }
+                            }
+                        }
                     }
                 } header: {
                     Text("Notifications")
                 } footer: {
-                    Text("Get reminded the evening before your pickup day.")
+                    Text("Get reminded about your pickup day.")
                 }
                 
                 Section {
@@ -57,6 +66,15 @@ public struct SettingsView: View {
                         }
                     }
                 }
+                
+                Section {
+                    Button("Reset App Setup") {
+                        showingResetAlert = true
+                    }
+                    .foregroundColor(.red)
+                } footer: {
+                    Text("This will clear all your settings and show the welcome screen again.")
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -67,39 +85,39 @@ public struct SettingsView: View {
                     }
                 }
             }
+            .alert("Reset App Setup", isPresented: $showingResetAlert) {
+                Button("Cancel", role: .cancel) { }
+                Button("Reset", role: .destructive) {
+                    resetAppSetup()
+                }
+            } message: {
+                Text("This will clear all your settings and show the welcome screen again. Are you sure?")
+            }
+        }
+    }
+    
+    private func resetAppSetup() {
+        // Clear all user defaults
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: "hasCompletedOnboarding")
+        defaults.removeObject(forKey: "selectedPickupDay")
+        defaults.removeObject(forKey: "notificationPreference")
+        defaults.removeObject(forKey: "notificationsEnabled")
+        defaults.removeObject(forKey: "notificationTime")
+        
+        // Cancel any scheduled notifications
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        
+        // Close settings and restart app flow
+        dismiss()
+        
+        // Force app to restart by posting a notification
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NotificationCenter.default.post(name: .resetAppSetup, object: nil)
         }
     }
 }
 
-// MARK: - Weekday Enum
-
-enum Weekday: Int, CaseIterable {
-    case monday = 1
-    case tuesday = 2
-    case wednesday = 3
-    case thursday = 4
-    case friday = 5
-    
-    var displayName: String {
-        switch self {
-        case .monday: return "Monday"
-        case .tuesday: return "Tuesday"
-        case .wednesday: return "Wednesday"
-        case .thursday: return "Thursday"
-        case .friday: return "Friday"
-        }
-    }
-    
-    var shortName: String {
-        switch self {
-        case .monday: return "Mon"
-        case .tuesday: return "Tue"
-        case .wednesday: return "Wed"
-        case .thursday: return "Thu"
-        case .friday: return "Fri"
-        }
-    }
-}
 
 #Preview {
     SettingsView()

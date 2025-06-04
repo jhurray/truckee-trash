@@ -28,9 +28,9 @@ class SettingsViewModel: ObservableObject {
         }
     }
     
-    @Published var notificationTime: Date {
+    @Published var notificationPreference: String {
         didSet {
-            UserDefaults.standard.set(notificationTime, forKey: "notificationTime")
+            UserDefaults.standard.set(notificationPreference, forKey: "notificationPreference")
             scheduleNotificationsIfNeeded()
         }
     }
@@ -39,18 +39,7 @@ class SettingsViewModel: ObservableObject {
         // Load saved settings or use defaults
         self.selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5 // Friday
         self.notificationsEnabled = UserDefaults.standard.bool(forKey: "notificationsEnabled")
-        
-        // Default notification time: 7:00 PM
-        if let savedTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date {
-            self.notificationTime = savedTime
-        } else {
-            let calendar = Calendar.current
-            var components = DateComponents()
-            components.hour = 19 // 7 PM
-            components.minute = 0
-            self.notificationTime = calendar.date(from: components) ?? Date()
-            UserDefaults.standard.set(self.notificationTime, forKey: "notificationTime")
-        }
+        self.notificationPreference = UserDefaults.standard.string(forKey: "notificationPreference") ?? "evening_before"
     }
     
     private func requestNotificationPermission() {
@@ -74,20 +63,29 @@ class SettingsViewModel: ObservableObject {
         // Schedule new notification
         let content = UNMutableNotificationContent()
         content.title = "Trash Day Reminder"
-        content.body = "Trash day reminder! Open Truckee Trash to see details for tomorrow."
         content.sound = .default
         
-        // Get notification time components
-        let calendar = Calendar.current
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: notificationTime)
-        
-        // Calculate the day before pickup day
-        let reminderDay = selectedPickupDay == 1 ? 7 : selectedPickupDay - 1 // Sunday if Monday pickup, otherwise previous day
-        
         var dateComponents = DateComponents()
-        dateComponents.weekday = reminderDay == 7 ? 1 : reminderDay + 1 // Convert to Calendar weekday format
-        dateComponents.hour = timeComponents.hour
-        dateComponents.minute = timeComponents.minute
+        
+        switch notificationPreference {
+        case "evening_before":
+            content.body = "Don't forget! Trash pickup is tomorrow."
+            // Schedule for 7 PM the day before pickup
+            let reminderDay = selectedPickupDay == 1 ? 7 : selectedPickupDay - 1
+            dateComponents.weekday = reminderDay == 7 ? 1 : reminderDay + 1
+            dateComponents.hour = 19 // 7 PM
+            dateComponents.minute = 0
+            
+        case "morning_of":
+            content.body = "Good morning! Today is trash pickup day."
+            // Schedule for 7 AM on pickup day
+            dateComponents.weekday = selectedPickupDay == 7 ? 1 : selectedPickupDay + 1
+            dateComponents.hour = 7 // 7 AM
+            dateComponents.minute = 0
+            
+        default:
+            return // No notifications
+        }
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: "TruckeeTrashPickupReminder", content: content, trigger: trigger)
