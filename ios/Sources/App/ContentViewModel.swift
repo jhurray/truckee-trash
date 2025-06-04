@@ -2,6 +2,10 @@ import Foundation
 import TruckeeTrashKit
 import Combine
 
+extension Notification.Name {
+    static let pickupDayChanged = Notification.Name("pickupDayChanged")
+}
+
 @MainActor
 class ContentViewModel: ObservableObject {
     @Published var pickupInfo: DayPickupInfo?
@@ -9,8 +13,23 @@ class ContentViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
+    #if DEBUG
+    @Published var testDate: Date? = nil
+    @Published var isTestMode = false
+    #endif
+    
     private let apiClient = TruckeeTrashKit.shared.apiClient
     private var cancellables = Set<AnyCancellable>()
+    
+    init() {
+        // Listen for pickup day changes
+        NotificationCenter.default.publisher(for: .pickupDayChanged)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.loadPickupInfo()
+            }
+            .store(in: &cancellables)
+    }
     
     func loadPickupInfo() {
         isLoading = true
@@ -20,7 +39,12 @@ class ContentViewModel: ObservableObject {
         let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5 // Friday
         
         // Calculate next occurrence of selected pickup day
+        #if DEBUG
+        let currentDate = testDate ?? apiClient.getCurrentTruckeeDate()
+        #else
         let currentDate = apiClient.getCurrentTruckeeDate()
+        #endif
+        
         let nextPickupDate = currentDate.nextOccurrence(of: selectedPickupDay)
         self.nextPickupDate = nextPickupDate
         
@@ -40,4 +64,18 @@ class ContentViewModel: ObservableObject {
             }
         }
     }
+    
+    #if DEBUG
+    func setTestDate(_ date: Date) {
+        testDate = date
+        isTestMode = true
+        loadPickupInfo()
+    }
+    
+    func clearTestDate() {
+        testDate = nil
+        isTestMode = false
+        loadPickupInfo()
+    }
+    #endif
 }

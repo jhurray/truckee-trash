@@ -8,6 +8,10 @@ struct ContentView: View {
     @EnvironmentObject private var notificationsService: NotificationsService
     @State private var showingSettings = false
     
+    #if DEBUG
+    @State private var showingTestDatePicker = false
+    #endif
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
@@ -34,10 +38,26 @@ struct ContentView: View {
                         showingSettings = true
                     }
                 }
+                
+                #if DEBUG
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showingTestDatePicker = true
+                    }) {
+                        Image(systemName: "calendar.badge.clock")
+                            .foregroundColor(viewModel.isTestMode ? .orange : .blue)
+                    }
+                }
+                #endif
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
+            #if DEBUG
+            .sheet(isPresented: $showingTestDatePicker) {
+                testDatePickerView
+            }
+            #endif
             .onAppear {
                 viewModel.loadPickupInfo()
             }
@@ -45,10 +65,28 @@ struct ContentView: View {
                 viewModel.loadPickupInfo()
             }
         }
+        .ignoresSafeArea()
     }
     
     private var headerView: some View {
         VStack(spacing: 8) {
+            #if DEBUG
+            if viewModel.isTestMode {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.orange)
+                    Text("TEST MODE")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 4)
+                .background(Color.orange.opacity(0.1))
+                .cornerRadius(8)
+            }
+            #endif
+            
             Text("Next Pickup Day")
                 .font(.headline)
                 .foregroundColor(.secondary)
@@ -58,6 +96,14 @@ struct ContentView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
             }
+            
+            #if DEBUG
+            if let testDate = viewModel.testDate {
+                Text("Testing from: \(formatTestDate(testDate))")
+                    .font(.caption)
+                    .foregroundColor(.orange)
+            }
+            #endif
         }
     }
     
@@ -246,4 +292,76 @@ struct ContentView: View {
             return .red
         }
     }
+    
+    #if DEBUG
+    private var testDatePickerView: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Test Date Selection")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    
+                    Text("Choose a date to test pickup calculations from that specific date.")
+                        .font(.body)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                
+                DatePicker(
+                    "Test Date",
+                    selection: Binding(
+                        get: { viewModel.testDate ?? Date() },
+                        set: { viewModel.setTestDate($0) }
+                    ),
+                    displayedComponents: [.date]
+                )
+                .datePickerStyle(.wheel)
+                
+                if viewModel.isTestMode {
+                    HStack {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundColor(.orange)
+                        Text("Test mode is active. The app will calculate pickup dates from your selected test date.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(8)
+                }
+                
+                Spacer()
+                
+                VStack(spacing: 12) {
+                    Button("Clear Test Date") {
+                        viewModel.clearTestDate()
+                        showingTestDatePicker = false
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!viewModel.isTestMode)
+                    
+                    Button("Done") {
+                        showingTestDatePicker = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            }
+            .padding()
+            .navigationTitle("Test Date")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+    
+    private func formatTestDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+        return formatter.string(from: date)
+    }
+    #endif
+}
+
+#Preview {
+    ContentView()
 }

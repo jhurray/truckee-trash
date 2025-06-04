@@ -25,13 +25,13 @@ final class DateUtilsTests: XCTestCase {
         XCTAssertEqual(fridayComponents.month, 6)
         XCTAssertEqual(fridayComponents.day, 6) // June 6, 2025 is Friday
         
-        // Test getting next Monday (should be same day since it's already Monday)
+        // Test getting next Monday (should be next week since it's already Monday)
         let nextMonday = monday.nextOccurrence(of: 1)
         let mondayComponents = calendar.dateComponents([.year, .month, .day], from: nextMonday)
         
         XCTAssertEqual(mondayComponents.year, 2025)
         XCTAssertEqual(mondayComponents.month, 6)
-        XCTAssertEqual(mondayComponents.day, 2) // Same day
+        XCTAssertEqual(mondayComponents.day, 9) // Next Monday, June 9
     }
     
     func testIsWeekdayAndWeekend() throws {

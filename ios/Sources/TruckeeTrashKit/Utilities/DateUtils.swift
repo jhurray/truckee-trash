@@ -2,6 +2,7 @@ import Foundation
 
 public extension Date {
     /// Get the next occurrence of a specific weekday (1 = Monday, 7 = Sunday)
+    /// This always finds the NEXT occurrence, not today even if today matches
     func nextOccurrence(of weekday: Int, in timeZone: TimeZone = TimeZone(identifier: "America/Los_Angeles")!) -> Date {
         let calendar = Calendar(identifier: .gregorian)
         let currentCalendar = Calendar.current
@@ -17,8 +18,8 @@ public extension Date {
         var daysToAdd: Int
         
         if adjustedCurrentWeekday == targetWeekday {
-            // If today is the target weekday, use today
-            daysToAdd = 0
+            // If today is the target weekday, find next week's occurrence
+            daysToAdd = 7
         } else if adjustedCurrentWeekday < targetWeekday {
             // Target is later this week
             daysToAdd = targetWeekday - adjustedCurrentWeekday

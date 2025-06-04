@@ -27,7 +27,15 @@ let project = Project(
                 .target(name: "TruckeeTrashKit"),
                 .target(name: "SettingsFeature"),
                 .target(name: "NotificationsService")
-            ]
+            ],
+            settings: .settings(
+                configurations: [
+                    .debug(name: "Debug", settings: [
+                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) SIMULATOR_ONLY"
+                    ]),
+                    .release(name: "Release")
+                ]
+            )
         ),
         
         // Core Kit Framework

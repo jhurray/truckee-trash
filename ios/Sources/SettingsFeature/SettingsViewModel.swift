@@ -2,12 +2,18 @@ import Foundation
 import Combine
 import UserNotifications
 
+extension Notification.Name {
+    static let pickupDayChanged = Notification.Name("pickupDayChanged")
+}
+
 @MainActor
 class SettingsViewModel: ObservableObject {
     @Published var selectedPickupDay: Int {
         didSet {
             UserDefaults.standard.set(selectedPickupDay, forKey: "selectedPickupDay")
             scheduleNotificationsIfNeeded()
+            // Notify other parts of the app that pickup day changed
+            NotificationCenter.default.post(name: .pickupDayChanged, object: nil)
         }
     }
     
