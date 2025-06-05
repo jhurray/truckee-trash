@@ -9,7 +9,7 @@ let project = Project(
             destinations: .iOS,
             product: .app,
             bundleId: "com.truckeetrash.app",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchStoryboardName": "LaunchScreen",
@@ -44,7 +44,7 @@ let project = Project(
             destinations: .iOS,
             product: .framework,
             bundleId: "com.truckeetrash.kit",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             sources: ["Sources/TruckeeTrashKit/**"],
             dependencies: []
         ),
@@ -55,7 +55,7 @@ let project = Project(
             destinations: .iOS,
             product: .framework,
             bundleId: "com.truckeetrash.settings",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             sources: ["Sources/SettingsFeature/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
@@ -68,7 +68,7 @@ let project = Project(
             destinations: .iOS,
             product: .framework,
             bundleId: "com.truckeetrash.notifications",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             sources: ["Sources/NotificationsService/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
@@ -81,7 +81,7 @@ let project = Project(
             destinations: .iOS,
             product: .appExtension,
             bundleId: "com.truckeetrash.app.widget",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleDisplayName": "Truckee Trash Widget",
@@ -102,7 +102,7 @@ let project = Project(
             destinations: .iOS,
             product: .unitTests,
             bundleId: "com.truckeetrash.kit.tests",
-            deploymentTargets: .iOS("16.0"),
+            deploymentTargets: .iOS("17.0"),
             sources: ["Tests/TruckeeTrashKitTests/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")

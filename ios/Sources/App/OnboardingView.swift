@@ -3,8 +3,8 @@ import UserNotifications
 import TruckeeTrashKit
 
 struct OnboardingView: View {
-    @State private var selectedPickupDay: Int = 5 // Default to Friday
-    @State private var notificationPreference: NotificationPreference = .none
+    @State private var selectedPickupDay: Int?
+    @State private var notificationPreference: NotificationPreference?
     @State private var currentStep: OnboardingStep = .pickupDay
     @State private var isRequestingPermissions = false
     
@@ -207,6 +207,17 @@ struct OnboardingView: View {
         }
     }
     
+    private var bottomButtonDisabled: Bool {
+        switch currentStep {
+        case .pickupDay:
+            return selectedPickupDay == nil
+        case .notifications:
+            return isRequestingPermissions || notificationPreference == nil
+        case .completing:
+            return true
+        }
+    }
+    
     private var bottomButtons: some View {
         VStack(spacing: 16) {
             switch currentStep {
@@ -218,9 +229,10 @@ struct OnboardingView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(Color.blue)
+                        .background(bottomButtonDisabled ? Color.gray : Color.blue)
                         .cornerRadius(12)
                 }
+                .disabled(bottomButtonDisabled)
                 
             case .notifications:
                 Button(action: nextStep) {
@@ -230,10 +242,10 @@ struct OnboardingView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(isRequestingPermissions ? Color.gray : Color.blue)
+                        .background(bottomButtonDisabled ? Color.gray : Color.blue)
                         .cornerRadius(12)
                 }
-                .disabled(isRequestingPermissions)
+                .disabled(bottomButtonDisabled)
                 
             case .completing:
                 EmptyView()
@@ -242,6 +254,8 @@ struct OnboardingView: View {
     }
     
     private func nextStep() {
+        guard !bottomButtonDisabled else { return }
+        
         let impactFeedback = UIImpactFeedbackGenerator(style: .light)
         impactFeedback.impactOccurred()
         
@@ -260,6 +274,8 @@ struct OnboardingView: View {
     }
     
     private func finishOnboarding() {
+        guard let notificationPreference else { return }
+        
         withAnimation(.easeInOut(duration: 0.3)) {
             currentStep = .completing
         }

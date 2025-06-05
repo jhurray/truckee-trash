@@ -33,6 +33,34 @@ public enum DayPickupTypeString: String, Codable, Hashable, CaseIterable {
     }
 }
 
+extension DayPickupTypeString {
+    public var emoji: String {
+        switch self {
+        case .recycling:
+            return "♻️"
+        case .yard_waste:
+            return "🌿"
+        case .trash_only:
+            return "🗑️"
+        case .no_pickup:
+            return "❌"
+        }
+    }
+    
+    public var userFriendlyDescription: String {
+        switch self {
+        case .recycling:
+            return "Recycling + Trash Day"
+        case .yard_waste:
+            return "Yard Waste + Trash Day"
+        case .trash_only:
+            return "Trash Day"
+        case .no_pickup:
+            return "No Pickup Today"
+        }
+    }
+}
+
 public struct DayPickupInfo: Codable, Hashable, Identifiable {
     public var id: String { date }
     public let date: String // "YYYY-MM-DD"

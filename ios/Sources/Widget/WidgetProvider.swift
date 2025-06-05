@@ -5,84 +5,76 @@ import TruckeeTrashKit
 struct Provider: TimelineProvider {
     private let apiClient = TruckeeTrashKit.shared.apiClient
     
-    func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(
+    func placeholder(in context: Context) -> PickupEntry {
+        PickupEntry(
             date: Date(),
-            weekStatus: RelevantWeekStatusInfo(
-                reportedWeek: ReportedWeekInfo(startDate: "2025-06-02", endDate: "2025-06-06"),
-                weekStatus: .yard_waste_week,
-                specialPickupDayInWeek: "2025-06-06",
-                specialPickupTypeOnDate: .yard_waste
+            pickupData: PickupDisplayData(
+                pickupType: .recycling,
+                nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
             ),
             errorMessage: nil
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(
+    func getSnapshot(in context: Context, completion: @escaping (PickupEntry) -> ()) {
+        let entry = PickupEntry(
             date: Date(),
-            weekStatus: RelevantWeekStatusInfo(
-                reportedWeek: ReportedWeekInfo(startDate: "2025-06-02", endDate: "2025-06-06"),
-                weekStatus: .yard_waste_week,
-                specialPickupDayInWeek: "2025-06-06",
-                specialPickupTypeOnDate: .yard_waste
+            pickupData: PickupDisplayData(
+                pickupType: .recycling,
+                nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
             ),
             errorMessage: nil
         )
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let currentDate = apiClient.getCurrentTruckeeDate()
+    func getTimeline(in context: Context, completion: @escaping (Timeline<PickupEntry>) -> ()) {
+        // Get user's selected pickup day (default to Friday if not set)
+        let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5
         
-        apiClient.fetchRelevantWeekStatus(currentDate: currentDate) { result in
-            let entry: SimpleEntry
+        let currentDate = apiClient.getCurrentTruckeeDate()
+        let nextPickupDate = currentDate.nextOccurrence(of: selectedPickupDay)
+        
+        apiClient.fetchDayPickupType(for: nextPickupDate) { result in
+            let entry: PickupEntry
             let nextUpdate: Date
             
             switch result {
-            case .success(let weekStatus):
-                entry = SimpleEntry(
+            case .success(let pickupInfo):
+                entry = PickupEntry(
                     date: currentDate,
-                    weekStatus: weekStatus,
+                    pickupData: PickupDisplayData(
+                        pickupType: pickupInfo.pickupType,
+                        nextPickupDate: nextPickupDate,
+                        currentDate: currentDate
+                    ),
                     errorMessage: nil
                 )
                 
-                // Update at the end of the current week or daily, whichever is sooner
-                if let endDate = parseDate(weekStatus.reportedWeek.endDate) {
-                    let calendar = Calendar.truckeeCalendar
-                    let endOfWeek = calendar.date(byAdding: .day, value: 1, to: endDate) ?? Date()
-                    let tomorrow = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? Date()
-                    nextUpdate = min(endOfWeek, tomorrow)
-                } else {
-                    nextUpdate = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) ?? Date()
-                }
+                // Update daily at 12 AM
+                let calendar = Calendar.truckeeCalendar
+                let nextMidnight = calendar.startOfDay(for: calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate)
+                nextUpdate = nextMidnight
                 
             case .failure(let error):
-                entry = SimpleEntry(
+                entry = PickupEntry(
                     date: currentDate,
-                    weekStatus: nil,
+                    pickupData: nil,
                     errorMessage: error.localizedDescription
                 )
                 
-                // Retry in 1 hour on error
-                nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: currentDate) ?? Date()
+                // Retry in 30 minutes on error
+                nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: currentDate) ?? Date()
             }
             
             let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
             completion(timeline)
         }
     }
-    
-    private func parseDate(_ dateString: String) -> Date? {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
-        return formatter.date(from: dateString)
-    }
 }
 
-struct SimpleEntry: TimelineEntry {
+struct PickupEntry: TimelineEntry {
     let date: Date
-    let weekStatus: RelevantWeekStatusInfo?
+    let pickupData: PickupDisplayData?
     let errorMessage: String?
 }

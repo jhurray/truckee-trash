@@ -200,58 +200,34 @@ struct MainView: View {
                     .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
             }
             
-            // Date information
-            VStack(spacing: 8) {
-                if let nextPickupDate = viewModel.nextPickupDate {
-                    Text(formatPickupDate(nextPickupDate))
-                        .font(.title)
+            // Main message based on timing
+            if let nextPickupDate = viewModel.nextPickupDate, let pickupInfo = viewModel.pickupInfo {
+                let calendar = Calendar.current
+                let now = viewModel.currentDate
+                let isToday = calendar.isDate(nextPickupDate, inSameDayAs: now)
+                let isTomorrow = calendar.isDate(nextPickupDate, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: now) ?? now)
+                
+                VStack(spacing: 12) {
+                    // Primary message
+                    Text(primaryMessage(isToday: isToday, isTomorrow: isTomorrow, pickupInfo: pickupInfo))
+                        .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
+                    
+                    // Secondary message
+                    if let secondaryMsg = secondaryMessage(isToday: isToday, isTomorrow: isTomorrow, date: nextPickupDate) {
+                        Text(secondaryMsg)
+                            .font(.title2)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                    }
                 }
-                
-                if let pickupInfo = viewModel.pickupInfo {
-                    Text(pickupInfo.pickupType.userFriendlyDescription)
-                        .font(.title2)
-                        .fontWeight(.medium)
-                        .foregroundColor(.white.opacity(0.95))
-                        .multilineTextAlignment(.center)
-                }
-            }
-            
-            // Time until pickup
-            if let nextPickupDate = viewModel.nextPickupDate {
-                timeUntilPickupView(nextPickupDate, currentDate: viewModel.currentDate)
             }
         }
     }
     
-    private func timeUntilPickupView(_ pickupDate: Date, currentDate: Date) -> some View {
-        let calendar = Calendar.current
-        let now = currentDate
-        
-        let isToday = calendar.isDate(pickupDate, inSameDayAs: now)
-        let isTomorrow = calendar.isDate(pickupDate, inSameDayAs: calendar.date(byAdding: .day, value: 1, to: now) ?? now)
-        
-        let timeText: String
-        if isToday {
-            timeText = "Today!"
-        } else if isTomorrow {
-            timeText = "Tomorrow"
-        } else {
-            let daysUntil = calendar.dateComponents([.day], from: now, to: pickupDate).day ?? 0
-            timeText = "In \(daysUntil) days"
-        }
-        
-        return Text(timeText)
-            .font(.title3)
-            .fontWeight(.medium)
-            .foregroundColor(.white.opacity(0.9))
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(Color.black.opacity(0.2))
-            .cornerRadius(20)
-    }
     
     private var settingsButton: some View {
         Button(action: {
@@ -273,6 +249,29 @@ struct MainView: View {
     }
     
     // MARK: - Helper Methods
+    
+    private func primaryMessage(isToday: Bool, isTomorrow: Bool, pickupInfo: DayPickupInfo) -> String {
+        let serviceType = pickupInfo.pickupType.userFriendlyDescription
+        
+        if isToday {
+            return "Today is \(serviceType)!"
+        } else if isTomorrow {
+            return "Tomorrow is \(serviceType)"
+        } else {
+            return "\(serviceType)"
+        }
+    }
+    
+    private func secondaryMessage(isToday: Bool, isTomorrow: Bool, date: Date) -> String? {
+        if isToday || isTomorrow {
+            return nil // No secondary message for today/tomorrow
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, MMM d"
+            formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+            return formatter.string(from: date)
+        }
+    }
     
     private func formatPickupDate(_ date: Date) -> String {
         let calendar = Calendar.current
@@ -344,36 +343,6 @@ struct MainView: View {
         }
     }
     #endif
-}
-
-// MARK: - Extensions
-
-extension DayPickupTypeString {
-    var emoji: String {
-        switch self {
-        case .recycling:
-            return "♻️"
-        case .yard_waste:
-            return "🌿"
-        case .trash_only:
-            return "🗑️"
-        case .no_pickup:
-            return "❌"
-        }
-    }
-    
-    var userFriendlyDescription: String {
-        switch self {
-        case .recycling:
-            return "Recycling + Trash Day"
-        case .yard_waste:
-            return "Yard Waste + Trash Day"
-        case .trash_only:
-            return "Trash Day"
-        case .no_pickup:
-            return "No Pickup Today"
-        }
-    }
 }
 
 #Preview {
