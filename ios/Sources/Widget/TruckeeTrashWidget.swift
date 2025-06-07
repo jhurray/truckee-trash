@@ -56,14 +56,13 @@ struct SmallWidgetView: View {
             Spacer()
             
             // Big emoji
-            Text(pickupData.pickupType.emoji)
-                .font(.system(size: 50))
+            PickupSymbolView(pickupType: pickupData.pickupType, size: 50)
                 .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
                 .minimumScaleFactor(0.2)
             
             // Compact message
             Text(pickupData.compactMessage)
-                .font(.caption)
+                .font(.headline)
                 .fontWeight(.bold)
                 .foregroundColor(Color.appAlwaysLightText)
                 .shadow(color: Color.appTextShadow, radius: 1, x: 0, y: 1)
@@ -78,10 +77,9 @@ struct AccessoryWidgetView: View {
     let pickupData: PickupDisplayData
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             // Big emoji
-            Text(pickupData.pickupType.emoji)
-                .font(.system(size: 25))
+            PickupSymbolView(pickupType: pickupData.pickupType, size: 35, forceEmoji: true)
                 .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
             
             // Compact message
@@ -108,8 +106,7 @@ struct MediumWidgetView: View {
             
             // Left side: Emoji
             VStack {
-                Text(pickupData.pickupType.emoji)
-                    .font(.system(size: 60))
+                PickupSymbolView(pickupType: pickupData.pickupType, size: 60)
                     .shadow(color: Color.appTextShadow, radius: 3, x: 0, y: 1)
             }
             .scaledToFit()
@@ -162,6 +159,7 @@ struct ErrorWidgetView: View {
                 .foregroundColor(Color.appSecondaryText)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
+                .minimumScaleFactor(0.7)
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -171,17 +169,19 @@ struct ErrorWidgetView: View {
 // MARK: - Loading Widget
 
 struct LoadingWidgetView: View {
+    @Environment(\.widgetFamily) var family
+
     var body: some View {
-        VStack(spacing: 12) {
-            ProgressView()
-                .scaleEffect(1.2)
-            
-            Text("Loading...")
-                .font(.headline)
-                .fontWeight(.medium)
-                .foregroundColor(Color.appAlwaysLightText)
+        Group {
+            switch family {
+            case .systemSmall:
+                SmallWidgetView(pickupData: .placeholder)
+            default:
+                MediumWidgetView(pickupData: .placeholder)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .redacted(reason: .placeholder)
+        .shimmering()
     }
 }
 
@@ -203,32 +203,70 @@ struct WidgetGradientBackground: View {
     }
 }
 
-// MARK: - Color Extension
+// MARK: - Shimmer Effect
 
-extension Color {
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: hex).scanHexInt64(&int)
-        let a, r, g, b: UInt64
-        switch hex.count {
-        case 3: // RGB (12-bit)
-            (a, r, g, b) = (255, (int >> 8) * 17, (int >> 4 & 0xF) * 17, (int & 0xF) * 17)
-        case 6: // RGB (24-bit)
-            (a, r, g, b) = (255, int >> 16, int >> 8 & 0xFF, int & 0xFF)
-        case 8: // ARGB (32-bit)
-            (a, r, g, b) = (int >> 24, int >> 16 & 0xFF, int >> 8 & 0xFF, int & 0xFF)
-        default:
-            (a, r, g, b) = (1, 1, 1, 0)
+@frozen
+public struct Shimmer: ViewModifier {
+    @State private var phase: CGFloat = 0
+    var duration = 1.5
+    var bounce = false
+
+    public func body(content: Content) -> some View {
+        content
+            .modifier(
+                AnimatedMask(phase: phase)
+                    .animation(
+                        Animation.linear(duration: duration)
+                            .repeatForever(autoreverses: bounce)
+                    )
+            )
+            .onAppear { phase = 0.8 }
+    }
+
+    
+    struct AnimatedMask: AnimatableModifier {
+        var phase: CGFloat = 0
+
+        var animatableData: CGFloat {
+            get { phase }
+            set { phase = newValue }
         }
-        
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
+
+        func body(content: Content) -> some View {
+            content
+                .mask(
+                    GradientMask(phase: phase)
+                        .scaleEffect(3)
+                )
+        }
+    }
+
+    struct GradientMask: View {
+        let phase: CGFloat
+        let centerColor = Color.appSecondaryText
+        let edgeColor = Color.appSecondaryText.opacity(0.8)
+
+        var body: some View {
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: edgeColor, location: phase),
+                    .init(color: centerColor, location: phase + 0.1),
+                    .init(color: edgeColor, location: phase + 0.2)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+    }
+}
+
+public extension View {
+    @ViewBuilder
+    func shimmering(
+        duration: Double = 1.5,
+        bounce: Bool = false
+    ) -> some View {
+        modifier(Shimmer(duration: duration, bounce: bounce))
     }
 }
 
@@ -240,7 +278,7 @@ extension Color {
     // We'll create a few different entries to see all our states.
     
     let date = Date()
-    let nextPickupDate = Calendar.current.date(byAdding: .day, value: 0, to: Date()) ?? Date()
+    let nextPickupDate = Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
 
     // 1. A recycling week entry
     let recyclingEntry = PickupEntry(

@@ -52,6 +52,14 @@ public struct PickupDisplayData {
             return formatter.string(from: nextPickupDate)
         }
     }
+    
+    public static var placeholder: PickupDisplayData {
+        PickupDisplayData(
+            pickupType: .trash_only,
+            nextPickupDate: Date(),
+            currentDate: Calendar.current.date(byAdding: .day, value: 2, to: Date()) ?? Date()
+        )
+    }
 }
 
 // MARK: - Widget Gradient Helper

@@ -309,9 +309,7 @@ struct OnboardingView: View {
     }
     
     private func scheduleNotifications() {
-        guard let notificationPreference,
-              let selectedPickupDay,
-              notificationPreference != .none else { return }
+        guard let notificationPreference, notificationPreference != .none else { return }
         
         // Get the notification service from the environment
         let notificationsService = NotificationsService()

@@ -8,7 +8,7 @@ let project = Project(
             name: "TruckeeTrash",
             destinations: .iOS,
             product: .app,
-            bundleId: "com.truckeetrash.app",
+            bundleId: "com.guaranteed.truckeetrash",
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
