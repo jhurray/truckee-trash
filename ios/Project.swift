@@ -26,7 +26,8 @@ let project = Project(
             dependencies: [
                 .target(name: "TruckeeTrashKit"),
                 .target(name: "SettingsFeature"),
-                .target(name: "NotificationsService")
+                .target(name: "NotificationsService"),
+                .target(name: "TruckeeTrashWidget")
             ],
             settings: .settings(
                 configurations: [

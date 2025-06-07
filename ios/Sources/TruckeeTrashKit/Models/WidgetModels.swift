@@ -60,13 +60,13 @@ public extension DayPickupTypeString {
     var widgetGradient: (start: String, end: String) {
         switch self {
         case .recycling:
-            return ("#0066CC", "#004499")
+            return ("#007AFF", "#0051D5") // Brighter blue
         case .yard_waste:
-            return ("#228B22", "#006400")
+            return ("#34C759", "#248A3D") // Brighter green
         case .trash_only:
-            return ("#2F2F2F", "#1A1A1A")
+            return ("#48484A", "#1C1C1E") // Better contrast gray
         case .no_pickup:
-            return ("#8B0000", "#550000")
+            return ("#FF3B30", "#D70015") // Brighter red
         }
     }
 }

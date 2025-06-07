@@ -125,9 +125,11 @@ struct ErrorWidgetView: View {
             Text("Error")
                 .font(.headline)
                 .fontWeight(.bold)
+                .foregroundColor(Color(UIColor.label))
             
             Text(errorMessage)
                 .font(.caption)
+                .foregroundColor(Color(UIColor.secondaryLabel))
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
         }
@@ -147,6 +149,7 @@ struct LoadingWidgetView: View {
             Text("Loading...")
                 .font(.headline)
                 .fontWeight(.medium)
+                .foregroundColor(Color(UIColor.label))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -198,3 +201,51 @@ extension Color {
         )
     }
 }
+
+#Preview(as: .systemMedium, widget: {
+    // This part points to your widget's configuration
+    TruckeeTrashWidget()
+}, timeline: {
+    // This part provides the data (entries) for the preview timeline.
+    // We'll create a few different entries to see all our states.
+
+    // 1. A recycling week entry
+    let recyclingEntry = PickupEntry(
+        date: Date(),
+        pickupData: PickupDisplayData(
+            pickupType: .recycling,
+            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        ),
+        errorMessage: nil
+    )
+    
+    // 2. A yard waste week entry
+    let yardWasteEntry = PickupEntry(
+        date: Date(),
+        pickupData: PickupDisplayData(
+            pickupType: .yard_waste,
+            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        ),
+        errorMessage: nil
+    )
+    
+    // 3. A normal trash week entry
+    let normalTrashEntry = PickupEntry(
+        date: Date(),
+        pickupData: PickupDisplayData(
+            pickupType: .trash_only,
+            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        ),
+        errorMessage: nil
+    )
+    
+    // 4. An error state entry
+    let errorEntry = PickupEntry(
+        date: Date(),
+        pickupData: nil,
+        errorMessage: "Failed to connect to the server."
+    )
+
+    // Return the entries for the preview timeline. Xcode will cycle through them.
+    return [recyclingEntry, yardWasteEntry, normalTrashEntry, errorEntry]
+})

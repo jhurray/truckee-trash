@@ -77,7 +77,7 @@ struct OnboardingView: View {
                 
                 Text("What day of the week is your trash pickup?")
                     .font(.title2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color(UIColor.secondaryLabel))
                     .multilineTextAlignment(.center)
             }
             
@@ -112,8 +112,8 @@ struct OnboardingView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPickupDay == weekday.rawValue ? Color.blue.opacity(0.1) : Color.white)
-                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                .fill(selectedPickupDay == weekday.rawValue ? Color.blue.opacity(0.2) : Color(UIColor.secondarySystemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -135,7 +135,7 @@ struct OnboardingView: View {
                 
                 Text("When would you like to be reminded about trash day?")
                     .font(.title2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color(UIColor.secondaryLabel))
                     .multilineTextAlignment(.center)
             }
             
@@ -156,7 +156,7 @@ struct OnboardingView: View {
                                 
                                 Text(preference.description)
                                     .font(.body)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(Color(UIColor.secondaryLabel))
                             }
                             
                             Spacer()
@@ -175,8 +175,8 @@ struct OnboardingView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(notificationPreference == preference ? Color.blue.opacity(0.1) : Color.white)
-                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                .fill(notificationPreference == preference ? Color.blue.opacity(0.2) : Color(UIColor.secondarySystemBackground))
+                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -198,7 +198,7 @@ struct OnboardingView: View {
                 
                 Text("We're setting up your trash day reminders...")
                     .font(.title2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(Color(UIColor.secondaryLabel))
                     .multilineTextAlignment(.center)
             }
             
