@@ -4,6 +4,7 @@ import SettingsFeature
 
 struct MainView: View {
     @StateObject private var viewModel: ContentViewModel
+    @EnvironmentObject private var liveActivityService: LiveActivityService
     @State private var showingSettings = false
     
     #if DEBUG
@@ -90,6 +91,10 @@ struct MainView: View {
         }
         #endif
         .onAppear {
+            // Inject Live Activity service into view model
+            if #available(iOS 16.1, *) {
+                viewModel.setLiveActivityService(liveActivityService)
+            }
             viewModel.loadPickupInfo()
         }
         .refreshable {

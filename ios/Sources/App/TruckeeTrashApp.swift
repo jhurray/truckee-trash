@@ -10,6 +10,14 @@ extension Notification.Name {
 @main
 struct TruckeeTrashApp: App {
     @StateObject private var notificationsService = NotificationsService()
+    @StateObject private var liveActivityService: LiveActivityService = {
+        if #available(iOS 16.1, *) {
+            return LiveActivityService()
+        } else {
+            // Return a mock or empty service for older iOS versions
+            return LiveActivityService()
+        }
+    }()
     @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     
     @MainActor
@@ -22,6 +30,7 @@ struct TruckeeTrashApp: App {
                 if hasCompletedOnboarding {
                     MainView()
                         .environmentObject(notificationsService)
+                        .environmentObject(liveActivityService)
                 } else {
                     OnboardingView {
                         withAnimation(.easeInOut(duration: 0.5)) {

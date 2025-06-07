@@ -1,6 +1,7 @@
 import Foundation
 import TruckeeTrashKit
 import Combine
+import NotificationsService
 
 extension Notification.Name {
     static let pickupDayChanged = Notification.Name("pickupDayChanged")
@@ -24,6 +25,9 @@ class ContentViewModel: ObservableObject {
     
     private let apiClient = TruckeeTrashKit.shared.apiClient
     private var cancellables = Set<AnyCancellable>()
+    
+    @available(iOS 16.1, *)
+    private var liveActivityService: LiveActivityService? = nil
     
     init() {
         // Listen for pickup day changes
@@ -65,12 +69,31 @@ class ContentViewModel: ObservableObject {
                 case .success(let pickupInfo):
                     self?.pickupInfo = pickupInfo
                     self?.errorMessage = nil
+                    
+                    // Update Live Activity if available
+                    if #available(iOS 16.1, *) {
+                        self?.liveActivityService?.handlePickupInfoUpdate(
+                            pickupInfo: pickupInfo,
+                            nextPickupDate: self?.nextPickupDate
+                        )
+                    }
+                    
                 case .failure(let error):
                     self?.pickupInfo = nil
                     self?.errorMessage = error.localizedDescription
+                    
+                    // End Live Activity on error
+                    if #available(iOS 16.1, *) {
+                        self?.liveActivityService?.endCurrentActivity()
+                    }
                 }
             }
         }
+    }
+    
+    @available(iOS 16.1, *)
+    func setLiveActivityService(_ service: LiveActivityService) {
+        self.liveActivityService = service
     }
     
     #if DEBUG
