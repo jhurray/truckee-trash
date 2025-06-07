@@ -1,6 +1,6 @@
 // lib/pickupLogic.ts
 import { toZonedTime, format, fromZonedTime } from 'date-fns-tz';
-import { parseISO, isValid } from 'date-fns';
+import { parseISO, isValid, subDays, addDays } from 'date-fns';
 import { allRecyclingDates, allYardWasteDates } from './pickupData';
 
 export type DayPickupType =
@@ -23,24 +23,30 @@ export function getDayPickupTypeLogic(dateString: string): GetDayPickupTypeResul
     return { error: "invalid_date_format" }; // Handles cases like "2025-02-30"
   }
 
-  // Check against corrected special pickup date sets
-  if (allRecyclingDates.has(dateString)) {
+  // Determine the day of the week for 'dateString' as experienced in Truckee.
+  // 'i' gives ISO day of week: 1 for Monday, ..., 7 for Sunday.
+  let isoDayOfWeekInTruckee = parseInt(format(representativeUtcDateForTruckeeDay, 'i', { timeZone: TRUCKEE_TIMEZONE }), 10);
+
+  let dateToEvaluate = representativeUtcDateForTruckeeDay;
+  if (isoDayOfWeekInTruckee > 5) { // For Saturday or Sunday, we report next week's status by checking next Monday
+      const daysToAdd = 8 - isoDayOfWeekInTruckee; // 2 for Sat (6), 1 for Sun (7)
+      dateToEvaluate = addDays(dateToEvaluate, daysToAdd);
+      isoDayOfWeekInTruckee = 1; // We are evaluating for a Monday
+  }
+
+  // For weekdays, check if it's a recycling or yard waste week.
+  // The dates in allRecyclingDates and allYardWasteDates are the Friday of the pickup week.
+  const fridayOfSameWeek = addDays(dateToEvaluate, 5 - isoDayOfWeekInTruckee);
+  const fridayDateString = format(fridayOfSameWeek, 'yyyy-MM-dd', { timeZone: TRUCKEE_TIMEZONE });
+
+  if (allRecyclingDates.has(fridayDateString)) {
     return { type: "recycling", dateInTruckee: representativeUtcDateForTruckeeDay };
   }
-  if (allYardWasteDates.has(dateString)) {
+
+  if (allYardWasteDates.has(fridayDateString)) {
     return { type: "yard_waste", dateInTruckee: representativeUtcDateForTruckeeDay };
   }
 
-  // Determine the day of the week for 'dateString' as experienced in Truckee.
-  // 'i' gives ISO day of week: 1 for Monday, ..., 7 for Sunday.
-  const isoDayOfWeekInTruckee = parseInt(format(representativeUtcDateForTruckeeDay, 'i', { timeZone: TRUCKEE_TIMEZONE }), 10);
-
-  // Convert ISO day (1=Mon...7=Sun) to JavaScript standard day (0=Sun...6=Sat)
-  const jsDayOfWeekInTruckee = isoDayOfWeekInTruckee % 7;
-
-  if (jsDayOfWeekInTruckee >= 1 && jsDayOfWeekInTruckee <= 5) { // Monday to Friday
-    return { type: "trash_only", dateInTruckee: representativeUtcDateForTruckeeDay };
-  } else { // Saturday or Sunday
-    return { type: "no_pickup", dateInTruckee: representativeUtcDateForTruckeeDay };
-  }
+  // If it's a weekday and not a special pickup week, it's trash only.
+  return { type: "trash_only", dateInTruckee: representativeUtcDateForTruckeeDay };
 }

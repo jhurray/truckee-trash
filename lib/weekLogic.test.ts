@@ -3,11 +3,11 @@ import { getRelevantWeekStatusLogic } from './weekLogic';
 
 describe('getRelevantWeekStatusLogic', () => {
   test('should return error for invalid date format', () => {
-    expect(getRelevantWeekStatusLogic('invalid')).toEqual({ 
-      error: 'currentDate parameter must be in yyyy-MM-dd format.' 
+    expect(getRelevantWeekStatusLogic('invalid')).toEqual({
+      error: 'currentDate parameter must be in yyyy-MM-dd format.'
     });
-    expect(getRelevantWeekStatusLogic('2025-1-1')).toEqual({ 
-      error: 'currentDate parameter must be in yyyy-MM-dd format.' 
+    expect(getRelevantWeekStatusLogic('2025-1-1')).toEqual({
+      error: 'currentDate parameter must be in yyyy-MM-dd format.'
     });
   });
 
@@ -31,8 +31,8 @@ describe('getRelevantWeekStatusLogic', () => {
     }
   });
 
-  test('should identify recycling week correctly', () => {
-    // Week containing Friday May 2, 2025 (yard waste day according to new CSV)
+  test('should identify yard waste week correctly', () => {
+    // Week containing Friday May 2, 2025 (yard waste day)
     const result = getRelevantWeekStatusLogic('2025-04-29'); // Tuesday of that week
     expect('error' in result).toBe(false);
     if (!('error' in result)) {
@@ -44,8 +44,8 @@ describe('getRelevantWeekStatusLogic', () => {
     }
   });
 
-  test('should identify yard waste week correctly', () => {
-    // Week containing Friday May 9, 2025 (recycling day according to new CSV)
+  test('should identify recycling week correctly', () => {
+    // Week containing Friday May 9, 2025 (recycling day)
     const result = getRelevantWeekStatusLogic('2025-05-06'); // Tuesday of that week
     expect('error' in result).toBe(false);
     if (!('error' in result)) {
@@ -83,8 +83,8 @@ describe('getRelevantWeekStatusLogic', () => {
     }
   });
 
-  test('should handle Thursday July 3rd yard waste correctly', () => {
-    // Week containing Friday July 4, 2025 (recycling day according to new CSV, July 3rd is normal)
+  test('should handle Thursday July 3rd recycling correctly', () => {
+    // Week containing Friday July 4, 2025 (recycling day)
     const result = getRelevantWeekStatusLogic('2025-07-01'); // Tuesday of that week
     expect('error' in result).toBe(false);
     if (!('error' in result)) {
@@ -98,7 +98,7 @@ describe('getRelevantWeekStatusLogic', () => {
 
   test('should return next week when called on Sunday', () => {
     // Sunday May 11, 2025 should return the week of May 12-16, 2025
-    // May 16 is a Yard Waste day according to new CSV
+    // May 16 is a Yard Waste day
     const result = getRelevantWeekStatusLogic('2025-05-11');
     expect('error' in result).toBe(false);
     if (!('error' in result)) {

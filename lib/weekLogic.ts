@@ -54,7 +54,7 @@ export function getRelevantWeekStatusLogic(currentDateString: string): RelevantW
   });
 
   let hasAnyWeekdayPickup = false;
-  for (const day of daysInServiceWeek) {
+  for (const day of daysInServiceWeek.reverse()) {
     const dayString = format(day, 'yyyy-MM-dd', { timeZone: TRUCKEE_TIMEZONE }); // Format as Truckee date string
     const pickupResult = getDayPickupTypeLogic(dayString);
 
