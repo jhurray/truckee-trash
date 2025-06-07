@@ -14,11 +14,7 @@ struct OnboardingView: View {
         GeometryReader { geometry in
             ZStack {
                 // Background gradient
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.1), Color.green.opacity(0.1)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Color.appOnboardingGradient()
                 .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
@@ -55,7 +51,7 @@ struct OnboardingView: View {
         HStack(spacing: 8) {
             ForEach(0..<3) { index in
                 Capsule()
-                    .fill(index <= currentStep.rawValue ? Color.blue : Color.gray.opacity(0.3))
+                    .fill(index <= currentStep.rawValue ? Color.blue : Color.appBorder.opacity(0.3))
                     .frame(height: 4)
                     .animation(.easeInOut(duration: 0.3), value: currentStep)
             }
@@ -77,7 +73,7 @@ struct OnboardingView: View {
                 
                 Text("What day of the week is your trash pickup?")
                     .font(.title2)
-                    .foregroundColor(Color(UIColor.secondaryLabel))
+                    .foregroundColor(Color.appSecondaryText)
                     .multilineTextAlignment(.center)
             }
             
@@ -104,7 +100,7 @@ struct OnboardingView: View {
                                     .font(.title2)
                             } else {
                                 Circle()
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 2)
+                                    .stroke(Color.appBorder.opacity(0.3), lineWidth: 2)
                                     .frame(width: 24, height: 24)
                             }
                         }
@@ -112,8 +108,8 @@ struct OnboardingView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(selectedPickupDay == weekday.rawValue ? Color.blue.opacity(0.2) : Color(UIColor.secondarySystemBackground))
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                .fill(selectedPickupDay == weekday.rawValue ? Color.appSelectedCardBackground : Color.appCardBackground)
+                                .shadow(color: Color.appShadow, radius: 2, x: 0, y: 1)
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -135,7 +131,7 @@ struct OnboardingView: View {
                 
                 Text("When would you like to be reminded about trash day?")
                     .font(.title2)
-                    .foregroundColor(Color(UIColor.secondaryLabel))
+                    .foregroundColor(Color.appSecondaryText)
                     .multilineTextAlignment(.center)
             }
             
@@ -156,7 +152,7 @@ struct OnboardingView: View {
                                 
                                 Text(preference.description)
                                     .font(.body)
-                                    .foregroundColor(Color(UIColor.secondaryLabel))
+                                    .foregroundColor(Color.appSecondaryText)
                             }
                             
                             Spacer()
@@ -167,7 +163,7 @@ struct OnboardingView: View {
                                     .font(.title2)
                             } else {
                                 Circle()
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 2)
+                                    .stroke(Color.appBorder.opacity(0.3), lineWidth: 2)
                                     .frame(width: 24, height: 24)
                             }
                         }
@@ -175,8 +171,8 @@ struct OnboardingView: View {
                         .padding(.vertical, 16)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(notificationPreference == preference ? Color.blue.opacity(0.2) : Color(UIColor.secondarySystemBackground))
-                                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                                .fill(notificationPreference == preference ? Color.appSelectedCardBackground : Color.appCardBackground)
+                                .shadow(color: Color.appShadow, radius: 2, x: 0, y: 1)
                         )
                     }
                     .buttonStyle(PlainButtonStyle())
@@ -198,7 +194,7 @@ struct OnboardingView: View {
                 
                 Text("We're setting up your trash day reminders...")
                     .font(.title2)
-                    .foregroundColor(Color(UIColor.secondaryLabel))
+                    .foregroundColor(Color.appSecondaryText)
                     .multilineTextAlignment(.center)
             }
             
@@ -226,10 +222,10 @@ struct OnboardingView: View {
                     Text("Continue")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.appInverseText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(bottomButtonDisabled ? Color.gray : Color.blue)
+                        .background(bottomButtonDisabled ? Color.appBorder : Color.blue)
                         .cornerRadius(12)
                 }
                 .disabled(bottomButtonDisabled)
@@ -239,10 +235,10 @@ struct OnboardingView: View {
                     Text(isRequestingPermissions ? "Setting up..." : "Finish Setup")
                         .font(.title3)
                         .fontWeight(.semibold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.appInverseText)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(bottomButtonDisabled ? Color.gray : Color.blue)
+                        .background(bottomButtonDisabled ? Color.appBorder : Color.blue)
                         .cornerRadius(12)
                 }
                 .disabled(bottomButtonDisabled)

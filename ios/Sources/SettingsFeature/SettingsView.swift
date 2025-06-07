@@ -56,13 +56,13 @@ public struct SettingsView: View {
                         
                         Text("Truckee Trash helps you stay informed about pickup schedules in Truckee, California.")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(Color.appSecondaryText)
                         
                         HStack {
                             Text("Version:")
                             Spacer()
                             Text("1.0.0")
-                                .foregroundColor(.secondary)
+                                .foregroundColor(Color.appSecondaryText)
                         }
                     }
                 }

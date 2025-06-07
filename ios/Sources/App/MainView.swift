@@ -54,9 +54,9 @@ struct MainView: View {
                         }) {
                             Image(systemName: "calendar.badge.clock")
                                 .font(.title3)
-                                .foregroundColor(viewModel.isTestMode ? .orange : .white.opacity(0.7))
+                                .foregroundColor(viewModel.isTestMode ? .orange : .appAlwaysLightTextSecondary)
                                 .padding(8)
-                                .background(Color.black.opacity(0.1))
+                                .background(Color.appShadow.opacity(0.3))
                                 .clipShape(Circle())
                         }
                         
@@ -116,11 +116,7 @@ struct MainView: View {
                     )
                 }
             } else {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue.opacity(0.6), Color.green.opacity(0.6)]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
+                Color.appOnboardingGradient()
             }
         }
     }
@@ -143,7 +139,7 @@ struct MainView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Color.black.opacity(0.2))
+        .background(Color.appShadow.opacity(0.6))
         .cornerRadius(20)
     }
     #endif
@@ -152,12 +148,12 @@ struct MainView: View {
         VStack(spacing: 24) {
             ProgressView()
                 .scaleEffect(2.0)
-                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                .progressViewStyle(CircularProgressViewStyle(tint: Color.appProgressTint))
             
             Text("Loading pickup info...")
                 .font(.title2)
                 .fontWeight(.medium)
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundColor(Color.appSecondaryText.opacity(0.9))
         }
     }
     
@@ -165,16 +161,16 @@ struct MainView: View {
         VStack(spacing: 24) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 80))
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundColor(Color.appAlwaysLightText.opacity(0.9))
             
             Text("Oops!")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(Color.appAlwaysLightText)
             
             Text(message)
                 .font(.title3)
-                .foregroundColor(.white.opacity(0.9))
+                .foregroundColor(Color.appAlwaysLightText.opacity(0.9))
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
             
@@ -183,12 +179,12 @@ struct MainView: View {
             }
             .font(.title3)
             .fontWeight(.semibold)
-            .foregroundColor(Color(UIColor.label))
+            .foregroundColor(Color.appButtonText)
             .padding(.horizontal, 32)
             .padding(.vertical, 12)
-            .background(Color(UIColor.systemBackground))
+            .background(Color.appButtonBackground)
             .cornerRadius(25)
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.appShadow, radius: 4, x: 0, y: 2)
         }
     }
     
@@ -198,7 +194,7 @@ struct MainView: View {
             if let pickupInfo = viewModel.pickupInfo {
                 Text(pickupInfo.pickupType.emoji)
                     .font(.system(size: 120))
-                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                    .shadow(color: Color.appShadow, radius: 4, x: 0, y: 2)
             }
             
             // Main message based on timing
@@ -213,7 +209,7 @@ struct MainView: View {
                     Text(primaryMessage(isToday: isToday, isTomorrow: isTomorrow, pickupInfo: pickupInfo))
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .foregroundColor(Color.appAlwaysLightText)
                         .multilineTextAlignment(.center)
                     
                     // Secondary message
@@ -221,7 +217,7 @@ struct MainView: View {
                         Text(secondaryMsg)
                             .font(.title2)
                             .fontWeight(.medium)
-                            .foregroundColor(.white.opacity(0.9))
+                            .foregroundColor(Color.appAlwaysLightText.opacity(0.9))
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -241,12 +237,12 @@ struct MainView: View {
                     .font(.title3)
                     .fontWeight(.medium)
             }
-            .foregroundColor(Color(UIColor.label))
+            .foregroundColor(Color.appButtonText)
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
-            .background(Color(UIColor.systemBackground))
+            .background(Color.appButtonBackground)
             .cornerRadius(25)
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+            .shadow(color: Color.appShadow, radius: 4, x: 0, y: 2)
         }
     }
     

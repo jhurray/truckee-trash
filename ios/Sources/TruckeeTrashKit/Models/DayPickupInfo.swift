@@ -37,9 +37,9 @@ extension DayPickupTypeString {
     public var emoji: String {
         switch self {
         case .recycling:
-            return "♻️"
+            return "♲"
         case .yard_waste:
-            return "🌿"
+            return "🌲"
         case .trash_only:
             return "🗑️"
         case .no_pickup:
@@ -50,9 +50,9 @@ extension DayPickupTypeString {
     public var userFriendlyDescription: String {
         switch self {
         case .recycling:
-            return "Recycling + Trash Day"
+            return "Recycling Day"
         case .yard_waste:
-            return "Yard Waste + Trash Day"
+            return "Yard Waste Day"
         case .trash_only:
             return "Trash Day"
         case .no_pickup:

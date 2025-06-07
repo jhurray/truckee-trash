@@ -21,11 +21,11 @@ public struct PickupDisplayData {
         let serviceType = pickupType.userFriendlyDescription
         
         if isToday {
-            return "Today is \(serviceType)!"
+            return "Today is\n\(serviceType)!"
         } else if isTomorrow {
-            return "Tomorrow is \(serviceType)"
+            return "Tomorrow is\n\(serviceType)"
         } else {
-            return "Next: \(serviceType)"
+            return "\(serviceType)"
         }
     }
     

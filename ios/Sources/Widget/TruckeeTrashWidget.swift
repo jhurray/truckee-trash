@@ -12,7 +12,7 @@ struct TruckeeTrashWidget: Widget {
                     if let pickupData = entry.pickupData {
                         WidgetGradientBackground(pickupType: pickupData.pickupType)
                     } else {
-                        Color.gray
+                        Color.appLoadingBackground
                     }
                 }
         }
@@ -32,10 +32,10 @@ struct TruckeeTrashWidgetEntryView: View {
                 switch family {
                 case .systemSmall:
                     SmallWidgetView(pickupData: pickupData)
-                case .systemMedium:
+                case .systemMedium, .systemLarge, .systemExtraLarge:
                     MediumWidgetView(pickupData: pickupData)
                 default:
-                    SmallWidgetView(pickupData: pickupData)
+                    AccessoryWidgetView(pickupData: pickupData)
                 }
             } else if let errorMessage = entry.errorMessage {
                 ErrorWidgetView(errorMessage: errorMessage)
@@ -58,16 +58,40 @@ struct SmallWidgetView: View {
             // Big emoji
             Text(pickupData.pickupType.emoji)
                 .font(.system(size: 50))
-                .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
+                .minimumScaleFactor(0.2)
             
             // Compact message
             Text(pickupData.compactMessage)
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundColor(.white)
-                .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                .foregroundColor(Color.appAlwaysLightText)
+                .shadow(color: Color.appTextShadow, radius: 1, x: 0, y: 1)
             
             Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+struct AccessoryWidgetView: View {
+    let pickupData: PickupDisplayData
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            // Big emoji
+            Text(pickupData.pickupType.emoji)
+                .font(.system(size: 25))
+                .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
+            
+            // Compact message
+            Text(pickupData.compactMessage)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(Color.appAlwaysLightText)
+                .shadow(color: Color.appTextShadow, radius: 1, x: 0, y: 1)
+                .minimumScaleFactor(0.7)
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -80,32 +104,38 @@ struct MediumWidgetView: View {
     
     var body: some View {
         HStack(spacing: 16) {
+            Spacer()
+            
             // Left side: Emoji
             VStack {
                 Text(pickupData.pickupType.emoji)
                     .font(.system(size: 60))
-                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                    .shadow(color: Color.appTextShadow, radius: 3, x: 0, y: 1)
             }
-            .frame(maxWidth: .infinity)
+            .scaledToFit()
             
             // Right side: Text information
             VStack(alignment: .leading, spacing: 8) {
                 Text(pickupData.primaryMessage)
                     .font(.headline)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                    .foregroundColor(Color.appAlwaysLightText)
+                    .shadow(color: Color.appTextShadow, radius: 2, x: 0, y: 1)
                     .lineLimit(2)
+                    .minimumScaleFactor(0.5)
                 
                 if let secondaryMsg = pickupData.secondaryMessage {
                     Text(secondaryMsg)
                         .font(.subheadline)
                         .fontWeight(.medium)
-                        .foregroundColor(.white.opacity(0.9))
-                        .shadow(color: .black.opacity(0.5), radius: 1, x: 0, y: 1)
+                        .foregroundColor(Color.appAlwaysLightText.opacity(0.9))
+                        .shadow(color: Color.appTextShadow, radius: 2, x: 0, y: 1)
+                        .minimumScaleFactor(0.5)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+            
+            Spacer()
         }
         .padding(16)
     }
@@ -120,16 +150,16 @@ struct ErrorWidgetView: View {
         VStack(spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.title)
-                .foregroundColor(.orange)
+                .foregroundColor(.red)
             
             Text("Error")
                 .font(.headline)
                 .fontWeight(.bold)
-                .foregroundColor(Color(UIColor.label))
+                .foregroundColor(Color.appPrimaryText)
             
             Text(errorMessage)
                 .font(.caption)
-                .foregroundColor(Color(UIColor.secondaryLabel))
+                .foregroundColor(Color.appSecondaryText)
                 .multilineTextAlignment(.center)
                 .lineLimit(3)
         }
@@ -149,7 +179,7 @@ struct LoadingWidgetView: View {
             Text("Loading...")
                 .font(.headline)
                 .fontWeight(.medium)
-                .foregroundColor(Color(UIColor.label))
+                .foregroundColor(Color.appAlwaysLightText)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -208,44 +238,53 @@ extension Color {
 }, timeline: {
     // This part provides the data (entries) for the preview timeline.
     // We'll create a few different entries to see all our states.
+    
+    let date = Date()
+    let nextPickupDate = Calendar.current.date(byAdding: .day, value: 0, to: Date()) ?? Date()
 
     // 1. A recycling week entry
     let recyclingEntry = PickupEntry(
-        date: Date(),
+        date: date,
         pickupData: PickupDisplayData(
             pickupType: .recycling,
-            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+            nextPickupDate: nextPickupDate
         ),
         errorMessage: nil
     )
     
     // 2. A yard waste week entry
     let yardWasteEntry = PickupEntry(
-        date: Date(),
+        date: date,
         pickupData: PickupDisplayData(
             pickupType: .yard_waste,
-            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+            nextPickupDate: nextPickupDate
         ),
         errorMessage: nil
     )
     
     // 3. A normal trash week entry
     let normalTrashEntry = PickupEntry(
-        date: Date(),
+        date: date,
         pickupData: PickupDisplayData(
             pickupType: .trash_only,
-            nextPickupDate: Calendar.current.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+            nextPickupDate: nextPickupDate
         ),
         errorMessage: nil
     )
     
     // 4. An error state entry
     let errorEntry = PickupEntry(
-        date: Date(),
+        date: date,
         pickupData: nil,
         errorMessage: "Failed to connect to the server."
     )
+    
+    let loadingEntry = PickupEntry(
+        date: date,
+        pickupData: nil,
+        errorMessage: nil
+    )
 
     // Return the entries for the preview timeline. Xcode will cycle through them.
-    return [recyclingEntry, yardWasteEntry, normalTrashEntry, errorEntry]
+    return [recyclingEntry, yardWasteEntry, normalTrashEntry, errorEntry, loadingEntry]
 })
