@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import UserNotifications
+import NotificationsService
 
 extension Notification.Name {
     static let pickupDayChanged = Notification.Name("pickupDayChanged")
@@ -8,6 +9,7 @@ extension Notification.Name {
 
 @MainActor
 class SettingsViewModel: ObservableObject {
+    private let notificationsService = NotificationsService()
     @Published var selectedPickupDay: Int {
         didSet {
             UserDefaults.standard.set(selectedPickupDay, forKey: "selectedPickupDay")
@@ -56,48 +58,10 @@ class SettingsViewModel: ObservableObject {
     
     private func scheduleNotificationsIfNeeded() {
         guard notificationsEnabled else { return }
-        
-        // Cancel existing notifications
-        cancelNotifications()
-        
-        // Schedule new notification
-        let content = UNMutableNotificationContent()
-        content.title = "Trash Day Reminder"
-        content.sound = .default
-        
-        var dateComponents = DateComponents()
-        
-        switch notificationPreference {
-        case "evening_before":
-            content.body = "Don't forget! Trash pickup is tomorrow."
-            // Schedule for 7 PM the day before pickup
-            let reminderDay = selectedPickupDay == 1 ? 7 : selectedPickupDay - 1
-            dateComponents.weekday = reminderDay == 7 ? 1 : reminderDay + 1
-            dateComponents.hour = 19 // 7 PM
-            dateComponents.minute = 0
-            
-        case "morning_of":
-            content.body = "Good morning! Today is trash pickup day."
-            // Schedule for 7 AM on pickup day
-            dateComponents.weekday = selectedPickupDay == 7 ? 1 : selectedPickupDay + 1
-            dateComponents.hour = 7 // 7 AM
-            dateComponents.minute = 0
-            
-        default:
-            return // No notifications
-        }
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "TruckeeTrashPickupReminder", content: content, trigger: trigger)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Error scheduling notification: \(error)")
-            }
-        }
+        notificationsService.schedulePickupReminders()
     }
     
     private func cancelNotifications() {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["TruckeeTrashPickupReminder"])
+        notificationsService.cancelAllNotifications()
     }
 }

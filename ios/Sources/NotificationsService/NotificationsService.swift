@@ -93,13 +93,31 @@ public class NotificationsService: ObservableObject {
         let calendar = Calendar.current
         let timeComponents = calendar.dateComponents([.hour, .minute], from: notificationTime)
         
-        // Calculate the day before pickup day
-        let reminderDay = selectedPickupDay == 1 ? 7 : selectedPickupDay - 1 // Sunday if Monday pickup, otherwise previous day
+        // Get notification preference
+        let notificationPreferenceRaw = UserDefaults.standard.string(forKey: "notificationPreference") ?? "evening_before"
+        let notificationPreference = NotificationPreference(rawValue: notificationPreferenceRaw) ?? .eveningBefore
         
         var dateComponents = DateComponents()
-        dateComponents.weekday = reminderDay == 7 ? 1 : reminderDay + 1 // Convert to Calendar weekday format (Sunday = 1)
-        dateComponents.hour = timeComponents.hour
-        dateComponents.minute = timeComponents.minute
+        
+        // Convert our weekday format (Monday=1) to iOS Calendar format (Sunday=1, Monday=2)
+        let calendarWeekday = selectedPickupDay == 7 ? 1 : selectedPickupDay + 1
+        
+        switch notificationPreference {
+        case .eveningBefore:
+            // Calculate the day before pickup day
+            let reminderCalendarWeekday = calendarWeekday == 1 ? 7 : calendarWeekday - 1
+            dateComponents.weekday = reminderCalendarWeekday
+            dateComponents.hour = timeComponents.hour ?? 19 // Default to 7 PM
+            dateComponents.minute = timeComponents.minute ?? 0
+            
+        case .morningOf:
+            dateComponents.weekday = calendarWeekday
+            dateComponents.hour = 7 // 7 AM
+            dateComponents.minute = 0
+            
+        case .none:
+            return // No notifications
+        }
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         let request = UNNotificationRequest(identifier: "TruckeeTrashPickupReminder", content: content, trigger: trigger)

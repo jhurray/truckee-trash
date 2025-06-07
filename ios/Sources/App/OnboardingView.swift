@@ -1,6 +1,7 @@
 import SwiftUI
 import UserNotifications
 import TruckeeTrashKit
+import NotificationsService
 
 struct OnboardingView: View {
     @State private var selectedPickupDay: Int?
@@ -308,8 +309,13 @@ struct OnboardingView: View {
     }
     
     private func scheduleNotifications() {
-        // Implementation would go here - similar to existing notification scheduling
-        // This would use the notificationPreference to determine timing
+        guard let notificationPreference,
+              let selectedPickupDay,
+              notificationPreference != .none else { return }
+        
+        // Get the notification service from the environment
+        let notificationsService = NotificationsService()
+        notificationsService.schedulePickupReminders()
     }
 }
 
