@@ -3,13 +3,24 @@ import TruckeeTrashKit
 import SettingsFeature
 
 struct MainView: View {
-    @StateObject private var viewModel = ContentViewModel()
+    @StateObject private var viewModel: ContentViewModel
     @State private var showingSettings = false
     
     #if DEBUG
     @State private var showingTestDatePicker = false
     #endif
     
+    init() {
+        // This initializer will be used by the app and is guaranteed to run on the main actor.
+        self._viewModel = StateObject(wrappedValue: ContentViewModel())
+    }
+
+    init(viewModel: ContentViewModel) {
+        // This initializer is for previews, allowing injection of a mock view model.
+        self._viewModel = StateObject(wrappedValue: viewModel)
+    }
+    
+    @MainActor
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -372,6 +383,52 @@ extension Color {
     }
 }
 
-#Preview {
-    MainView()
+#if DEBUG
+
+func dateString(for dayOffset: Int) -> String {
+    let date = Calendar.current.date(byAdding: .day, value: dayOffset, to: Date())!
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd"
+    formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+    return formatter.string(from: date)
 }
+
+#Preview {
+    struct PreviewWrapper: View {
+        enum PreviewPickUpType: String, CaseIterable {
+            case recycling
+            case yard_waste
+            case trash_only
+            case no_pickup
+            case error
+            case loading
+            
+            @MainActor
+            func mainView(for dayOffset: Int) -> some View {
+                switch self {
+                case .recycling:
+                    return MainView(viewModel: .init(pickupInfo: .init(date: dateString(for: dayOffset), pickupType: .recycling)))
+                case .yard_waste:
+                    return MainView(viewModel: .init(pickupInfo: .init(date: dateString(for: dayOffset), pickupType: .yard_waste)))
+                case .trash_only:
+                    return MainView(viewModel: .init(pickupInfo: .init(date: dateString(for: dayOffset), pickupType: .trash_only)))
+                case .no_pickup:
+                    return MainView(viewModel: .init(pickupInfo: .init(date: dateString(for: dayOffset), pickupType: .no_pickup)))
+                case .error:
+                    return MainView(viewModel: .init(pickupInfo: nil, errorMessage: "Could not connect to the server."))
+                case .loading: 
+                    return MainView(viewModel: .init(pickupInfo: nil, isLoading: true))
+                }
+            }
+        }
+        
+        @State var pickUpType: PreviewPickUpType = .recycling
+        
+        var body: some View {
+            pickUpType.mainView(for: 0)
+        }
+    }
+    
+    return PreviewWrapper()
+}
+#endif

@@ -47,6 +47,17 @@ extension DayPickupTypeString {
         }
     }
     
+    public var imageName: String {
+        switch self {
+        case .recycling:
+            return "Recycling"
+        case .yard_waste:
+            return "YardWaste"
+        default:
+            return ""
+        }
+    }
+    
     public var userFriendlyDescription: String {
         switch self {
         case .recycling:

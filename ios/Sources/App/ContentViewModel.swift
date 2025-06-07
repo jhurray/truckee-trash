@@ -17,6 +17,7 @@ class ContentViewModel: ObservableObject {
     @Published var testDate: Date? = nil
     @Published var isTestMode = false
     var currentDate: Date { testDate ?? Date() }
+    var shouldReloadData: Bool = true
     #else
     var currentDate: Date { Date() }
     #endif
@@ -35,6 +36,10 @@ class ContentViewModel: ObservableObject {
     }
     
     func loadPickupInfo() {
+        #if DEBUG
+        guard shouldReloadData else { return }
+        #endif
+        
         isLoading = true
         errorMessage = nil
         
@@ -79,6 +84,20 @@ class ContentViewModel: ObservableObject {
         testDate = nil
         isTestMode = false
         loadPickupInfo()
+    }
+
+    init(pickupInfo: DayPickupInfo?, isLoading: Bool = false, errorMessage: String? = nil) {
+        self.pickupInfo = pickupInfo
+        self.isLoading = isLoading
+        self.errorMessage = errorMessage
+        self.shouldReloadData = false
+
+        if let pickupInfo = pickupInfo {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            formatter.timeZone = TimeZone(identifier: "America/Los_Angeles")
+            self.nextPickupDate = formatter.date(from: pickupInfo.date)
+        }
     }
     #endif
 }

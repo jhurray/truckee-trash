@@ -139,7 +139,6 @@ public extension Color {
             return UIColor.tertiarySystemBackground
         default:
             return UIColor.systemBackground
-            return UIColor.systemBackground
         }
     })
     

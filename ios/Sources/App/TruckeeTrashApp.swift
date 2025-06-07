@@ -12,6 +12,7 @@ struct TruckeeTrashApp: App {
     @StateObject private var notificationsService = NotificationsService()
     @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     
+    @MainActor
     var body: some Scene {
         WindowGroup {
             ZStack {
