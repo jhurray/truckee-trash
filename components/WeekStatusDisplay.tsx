@@ -22,18 +22,18 @@ export default function WeekStatusDisplay({ weekStatus, showFooter = true }: Wee
     }
   };
 
-  const getEmoji = (status: string) => {
+  const getSymbol = (status: string): { type: 'emoji' | 'image'; value: string } => {
     switch (status) {
       case 'recycling_week':
-        return '♻️🗑️'; // Recycling + trash
+        return { type: 'image', value: '/Recycling.png' };
       case 'yard_waste_week':
-        return '🌿🗑️'; // Yard waste + trash  
+        return { type: 'image', value: '/YardWaste.png' };
       case 'normal_trash_week':
-        return '🗑️';
+        return { type: 'emoji', value: '🗑️' };
       case 'no_pickup_week':
-        return '🚫';
+        return { type: 'emoji', value: '🚫' };
       default:
-        return '🗑️';
+        return { type: 'emoji', value: '🗑️' };
     }
   };
 
@@ -67,10 +67,18 @@ export default function WeekStatusDisplay({ weekStatus, showFooter = true }: Wee
     }
   };
 
+  const symbol = getSymbol(weekStatus.weekStatus);
+
   return (
     <div className={`week-status-container ${getBgClass(weekStatus.weekStatus)}`}>
       <main className="week-status-content">
-        <div className="week-status-emoji">{getEmoji(weekStatus.weekStatus)}</div>
+        <div className="week-status-emoji">
+          {symbol.type === 'image' ? (
+            <img src={symbol.value} alt={weekStatus.weekStatus} />
+          ) : (
+            symbol.value
+          )}
+        </div>
         <h1 className="week-status-title">{getWeekMessage(weekStatus.weekStatus)}</h1>
         <p className="week-status-subtitle">{getSubMessage(weekStatus.weekStatus)}</p>
       </main>

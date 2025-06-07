@@ -4,27 +4,47 @@ public struct PickupSymbolView: View {
     public let pickupType: DayPickupTypeString
     public let size: CGFloat
     public let forceEmoji: Bool
+    public let isWidget: Bool
     private let imageMultiplier: CGFloat = 1.5
     
-    public init(pickupType: DayPickupTypeString, size: CGFloat, forceEmoji: Bool = false) {
+    public init(pickupType: DayPickupTypeString, size: CGFloat, forceEmoji: Bool = false, isWidget: Bool = false) {
         self.pickupType = pickupType
         self.size = size
         self.forceEmoji = forceEmoji
+        self.isWidget = isWidget
     }
 
     public var body: some View {
         ZStack {
-            if !pickupType.imageName.isEmpty && !forceEmoji {
-                Image(pickupType.imageName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: size * imageMultiplier, height: size * imageMultiplier)
+            if forceEmoji {
+                // Force emoji mode
+                Text(pickupType.emoji)
+                    .font(.system(size: size))
+            } else if let sfSymbolName = pickupType.sfSymbolName {
+                // Use SF Symbol for widgets (always available)
+                Image(systemName: sfSymbolName)
+                    .font(.system(size: size * 0.8))
+                    .foregroundColor(isWidget ? .white : symbolColor)
             } else {
+                // Fallback to emoji
                 Text(pickupType.emoji)
                     .font(.system(size: size))
             }
         }
         .frame(width: size, height: size)
+    }
+    
+    private var symbolColor: Color {
+        switch pickupType {
+        case .recycling:
+            return .blue
+        case .yard_waste:
+            return .green
+        case .trash_only:
+            return .gray
+        case .no_pickup:
+            return .red
+        }
     }
 }
 

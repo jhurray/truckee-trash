@@ -37,13 +37,26 @@ extension DayPickupTypeString {
     public var emoji: String {
         switch self {
         case .recycling:
-            return "♲"
+            return "♻️"
         case .yard_waste:
-            return "🌲"
+            return "🌿"
         case .trash_only:
             return "🗑️"
         case .no_pickup:
             return "❌"
+        }
+    }
+    
+    public var sfSymbolName: String? {
+        switch self {
+        case .recycling:
+            return "arrow.3.trianglepath"
+        case .yard_waste:
+            return "leaf.fill"
+        case .trash_only:
+            return "trash.fill"
+        case .no_pickup:
+            return "xmark.circle.fill"
         }
     }
     

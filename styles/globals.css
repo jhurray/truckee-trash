@@ -41,21 +41,21 @@ body {
   overflow: hidden;
 }
 
-/* High contrast background colors */
+/* High contrast background colors - matching iOS app exactly */
 .recycling-bg { 
-  background: linear-gradient(135deg, #0066CC 0%, #004499 100%);
+  background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
   color: white; 
 }
 .yard-waste-bg { 
-  background: linear-gradient(135deg, #228B22 0%, #006400 100%);
+  background: linear-gradient(135deg, #34C759 0%, #248A3D 100%);
   color: white; 
 }
 .normal-trash-bg { 
-  background: linear-gradient(135deg, #2F2F2F 0%, #1A1A1A 100%);
+  background: linear-gradient(135deg, #48484A 0%, #1C1C1E 100%);
   color: white; 
 }
 .no-pickup-bg { 
-  background: linear-gradient(135deg, #8B0000 0%, #550000 100%);
+  background: linear-gradient(135deg, #FF3B30 0%, #D70015 100%);
   color: white; 
 }
 
@@ -77,12 +77,22 @@ body {
   margin-bottom: clamp(1rem, 3vw, 2rem);
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
   text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-/* Clear, bold messaging */
+.week-status-emoji img {
+  width: 1.5em;
+  height: 1.5em;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+/* Clear, bold messaging - matching iOS app */
 .week-status-title {
   font-size: clamp(2rem, 6vw, 4rem);
   font-weight: 800;
+  color: white;
   margin-bottom: clamp(0.5rem, 2vw, 1rem);
   letter-spacing: -0.02em;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -92,7 +102,8 @@ body {
 .week-status-subtitle {
   font-size: clamp(1.2rem, 3.5vw, 2rem);
   font-weight: 600;
-  opacity: 0.95;
+  color: white;
+  opacity: 0.9;
   text-shadow: 0 1px 2px rgba(0,0,0,0.2);
   line-height: 1.3;
   max-width: 80vw;
