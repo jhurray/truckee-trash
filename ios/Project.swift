@@ -30,6 +30,10 @@ let project = Project(
                 .target(name: "TruckeeTrashWidget")
             ],
             settings: .settings(
+                base: [
+                    "DEVELOPMENT_TEAM": "43LEM8BQ2H",
+                    "CODE_SIGN_STYLE": "Automatic"
+                ],
                 configurations: [
                     .debug(name: "Debug", settings: [
                         "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) SIMULATOR_ONLY"
@@ -47,7 +51,10 @@ let project = Project(
             bundleId: "com.truckeetrash.kit",
             deploymentTargets: .iOS("17.0"),
             sources: ["Sources/TruckeeTrashKit/**"],
-            dependencies: []
+            dependencies: [],
+            settings: .settings(
+                base: ["DEFINES_MODULE": "YES"]
+            )
         ),
         
         // Settings Feature
@@ -59,8 +66,12 @@ let project = Project(
             deploymentTargets: .iOS("17.0"),
             sources: ["Sources/SettingsFeature/**"],
             dependencies: [
-                .target(name: "TruckeeTrashKit")
-            ]
+                .target(name: "TruckeeTrashKit"),
+                .target(name: "NotificationsService")
+            ],
+            settings: .settings(
+                base: ["DEFINES_MODULE": "YES"]
+            )
         ),
         
         // Notifications Service
@@ -73,7 +84,10 @@ let project = Project(
             sources: ["Sources/NotificationsService/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
-            ]
+            ],
+            settings: .settings(
+                base: ["DEFINES_MODULE": "YES"]
+            )
         ),
         
         // Widget Extension
@@ -81,7 +95,7 @@ let project = Project(
             name: "TruckeeTrashWidget",
             destinations: .iOS,
             product: .appExtension,
-            bundleId: "com.truckeetrash.app.widget",
+            bundleId: "com.guaranteed.truckeetrash.widget",
             deploymentTargets: .iOS("17.0"),
             infoPlist: .extendingDefault(
                 with: [
@@ -94,7 +108,13 @@ let project = Project(
             sources: ["Sources/Widget/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
-            ]
+            ],
+            settings: .settings(
+                base: [
+                    "DEVELOPMENT_TEAM": "43LEM8BQ2H",
+                    "CODE_SIGN_STYLE": "Automatic"
+                ]
+            )
         ),
         
         // Tests

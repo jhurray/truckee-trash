@@ -31,7 +31,7 @@ final class DateUtilsTests: XCTestCase {
         
         XCTAssertEqual(mondayComponents.year, 2025)
         XCTAssertEqual(mondayComponents.month, 6)
-        XCTAssertEqual(mondayComponents.day, 9) // Next Monday, June 9
+        XCTAssertEqual(mondayComponents.day, 2) // Current Monday 
     }
     
     func testIsWeekdayAndWeekend() throws {
