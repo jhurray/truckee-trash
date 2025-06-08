@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "images:generate": "node scripts/generate-images.js"
   },
   "repository": {
     "type": "git",
