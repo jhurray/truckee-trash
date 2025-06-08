@@ -2,7 +2,7 @@ import Foundation
 
 public extension Date {
     /// Get the next occurrence of a specific weekday (1 = Monday, 7 = Sunday)
-    /// This always finds the NEXT occurrence, not today even if today matches
+    /// If the date already falls on the target weekday, that same day is returned.
     func nextOccurrence(of weekday: Int, in timeZone: TimeZone = TimeZone(identifier: "America/Los_Angeles")!) -> Date {
         let currentCalendar = Calendar.current
         
@@ -30,9 +30,10 @@ public extension Date {
         return currentCalendar.date(byAdding: .day, value: daysToAdd, to: self) ?? self
     }
     
-    /// Check if this date is a weekday (Monday-Friday) in Truckee timezone
+    /// Check if this date is a weekday (Monday-Friday) in the provided timezone
     func isWeekday(in timeZone: TimeZone = TimeZone(identifier: "America/Los_Angeles")!) -> Bool {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.timeZone = timeZone
         let weekday = calendar.component(.weekday, from: self)
         return weekday >= 2 && weekday <= 6 // Monday = 2, Friday = 6
     }
