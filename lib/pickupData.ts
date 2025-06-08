@@ -49,8 +49,8 @@ export const recyclingDates2026 = new Set([
   "2026-04-24",
 ]);
 
-// Based on the provided CSV, there are no Yard Waste dates listed for 2026
-// within the range of the CSV (which ends May 1, 2026).
+// Based on the provided CSV, only one Yard Waste date is listed for 2026
+// within the range of the CSV (May 1, 2026).
 export const yardWasteDates2026 = new Set<string>([
   "2026-05-01",
 ]);

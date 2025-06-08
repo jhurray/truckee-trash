@@ -17,7 +17,7 @@ public extension Date {
         var daysToAdd: Int
         
         if adjustedCurrentWeekday == targetWeekday {
-            // If today is the target weekday, its today
+            // If today is the target weekday, it's today
             daysToAdd = 0
         } else if adjustedCurrentWeekday < targetWeekday {
             // Target is later this week
