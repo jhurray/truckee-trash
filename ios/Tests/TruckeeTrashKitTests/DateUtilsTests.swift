@@ -62,8 +62,27 @@ final class DateUtilsTests: XCTestCase {
     
     func testTruckeeCalendar() throws {
         let calendar = Calendar.truckeeCalendar
-        
+
         XCTAssertEqual(calendar.timeZone.identifier, "America/Los_Angeles")
         XCTAssertEqual(calendar.identifier, .gregorian)
+    }
+
+    func testIsWeekdayWithCustomTimeZone() throws {
+        let utc = TimeZone(identifier: "UTC")!
+        let la = TimeZone(identifier: "America/Los_Angeles")!
+
+        var components = DateComponents()
+        components.year = 2025
+        components.month = 6
+        components.day = 2
+        components.hour = 6 // 6 AM UTC on June 2, 2025
+
+        var utcCalendar = Calendar(identifier: .gregorian)
+        utcCalendar.timeZone = utc
+        let date = utcCalendar.date(from: components)!
+
+        XCTAssertTrue(date.isWeekday(in: utc))
+        XCTAssertFalse(date.isWeekday(in: la))
+        XCTAssertTrue(date.isWeekend(in: la))
     }
 }
