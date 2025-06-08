@@ -18,7 +18,7 @@ let project = Project(
                     ],
                     "CFBundleDisplayName": "Truckee Trash",
                     "CFBundleShortVersionString": "1.0",
-                    "CFBundleVersion": "2"
+                    "CFBundleVersion": "3"
                 ]
             ),
             sources: ["Sources/App/**"],
@@ -104,7 +104,7 @@ let project = Project(
                     "NSExtension": [
                         "NSExtensionPointIdentifier": "com.apple.widgetkit-extension"
                     ],
-                    "CFBundleVersion": "2"
+                    "CFBundleVersion": "3"
                 ]
             ),
             sources: ["Sources/Widget/**"],

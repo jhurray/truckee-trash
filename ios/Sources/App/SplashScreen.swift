@@ -92,7 +92,7 @@ struct SplashScreen: View {
     
     /// A computed property for the logo view to avoid repetition.
     private var logoImage: some View {
-        Image("Logo") // Using an SF Symbol for easy previewing. Change to your "Logo".
+        Image("Logo")
             .resizable()
             .scaledToFit()
             .frame(width: 240, height: 240)
@@ -161,13 +161,12 @@ struct SplashScreenHost: View {
                 SplashScreen(startAnimation: startAnimation) {
                     // When the splash animation is done, we animate the
                     // state change that causes this view to be removed.
-                    withAnimation(.easeOut(duration: 0.25)) {
+                    withAnimation(.easeOut(duration: 0.4)) {
                         showSplashScreen = false
                     }
                 }
                 // The transition modifier handles the fade-in/fade-out.
                 .transition(.opacity)
-                .scaledToFill()
             }
         }
         .id(viewId) // Change the ID to reset the view's state for the preview
