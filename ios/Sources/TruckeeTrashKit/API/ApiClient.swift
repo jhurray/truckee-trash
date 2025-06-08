@@ -91,9 +91,15 @@ public class ApiClient {
 // MARK: - Convenience Extensions
 
 extension ApiClient {
-    /// Get the current date in Truckee timezone
+    /// Get the current date in Truckee timezone (respects debug test date)
     public func getCurrentTruckeeDate() -> Date {
+        #if DEBUG
+        // Use debug test date if available
+        let now = DebugTestDateHelper.getCurrentDate()
+        #else
         let now = Date()
+        #endif
+        
         let calendar = Calendar.current
         var components = calendar.dateComponents(in: truckeeTimeZone, from: now)
         components.hour = 0

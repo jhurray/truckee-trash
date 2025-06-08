@@ -97,13 +97,13 @@ public struct SettingsView: View {
     }
     
     private func resetAppSetup() {
-        // Clear all user defaults
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: "hasCompletedOnboarding")
-        defaults.removeObject(forKey: "selectedPickupDay")
-        defaults.removeObject(forKey: "notificationPreference")
-        defaults.removeObject(forKey: "notificationsEnabled")
-        defaults.removeObject(forKey: "notificationTime")
+        // Clear all shared user defaults
+        SharedUserDefaults.hasCompletedOnboarding = false
+        SharedUserDefaults.selectedPickupDay = 5 // Reset to Friday default
+        SharedUserDefaults.notificationPreference = "evening_before"
+        SharedUserDefaults.notificationsEnabled = false
+        
+        SharedUserDefaults.clearAll()
         
         // Cancel any scheduled notifications
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()

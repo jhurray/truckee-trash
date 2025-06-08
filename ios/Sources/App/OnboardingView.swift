@@ -14,9 +14,12 @@ struct OnboardingView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
+                Color.appOnboardingBackground
+                    .ignoresSafeArea()
+                
                 // Background gradient
                 Color.appOnboardingGradient()
-                .ignoresSafeArea()
+                    .ignoresSafeArea()
                 
                 VStack(spacing: 0) {
                     // Progress indicator
@@ -278,9 +281,9 @@ struct OnboardingView: View {
         }
         
         // Save pickup day
-        UserDefaults.standard.set(selectedPickupDay, forKey: "selectedPickupDay")
-        UserDefaults.standard.set(notificationPreference.rawValue, forKey: "notificationPreference")
-        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+        SharedUserDefaults.selectedPickupDay = selectedPickupDay!
+        SharedUserDefaults.notificationPreference = notificationPreference.rawValue
+        SharedUserDefaults.hasCompletedOnboarding = true
         
         if notificationPreference != .none {
             isRequestingPermissions = true
@@ -288,7 +291,7 @@ struct OnboardingView: View {
             // Request notification permissions
             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
                 DispatchQueue.main.async {
-                    UserDefaults.standard.set(granted, forKey: "notificationsEnabled")
+                    SharedUserDefaults.notificationsEnabled = granted
                     
                     if granted {
                         scheduleNotifications()
@@ -301,7 +304,7 @@ struct OnboardingView: View {
                 }
             }
         } else {
-            UserDefaults.standard.set(false, forKey: "notificationsEnabled")
+            SharedUserDefaults.notificationsEnabled = false
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 onComplete()
             }

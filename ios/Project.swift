@@ -18,11 +18,12 @@ let project = Project(
                     ],
                     "CFBundleDisplayName": "Truckee Trash",
                     "CFBundleShortVersionString": "1.0",
-                    "CFBundleVersion": "1"
+                    "CFBundleVersion": "2"
                 ]
             ),
             sources: ["Sources/App/**"],
             resources: ["Resources/**"],
+            entitlements: .file(path: "Sources/App/TruckeeTrash.entitlements"),
             dependencies: [
                 .target(name: "TruckeeTrashKit"),
                 .target(name: "SettingsFeature"),
@@ -106,6 +107,8 @@ let project = Project(
                 ]
             ),
             sources: ["Sources/Widget/**"],
+            resources: ["Resources/**"],
+            entitlements: .file(path: "Sources/Widget/TruckeeTrashWidget.entitlements"),
             dependencies: [
                 .target(name: "TruckeeTrashKit")
             ],

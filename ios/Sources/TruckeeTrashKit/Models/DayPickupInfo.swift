@@ -60,12 +60,12 @@ extension DayPickupTypeString {
         }
     }
     
-    public var imageName: String {
+    public func imageName(forceSmall: Bool = false) -> String {
         switch self {
         case .recycling:
-            return "Recycling"
+            return forceSmall ? "Recycling" :"Recycling-lg"
         case .yard_waste:
-            return "YardWaste"
+            return forceSmall ? "YardWaste" : "YardWaste-lg"
         default:
             return ""
         }

@@ -6,12 +6,20 @@ public struct PickupSymbolView: View {
     public let forceEmoji: Bool
     public let isWidget: Bool
     private let imageMultiplier: CGFloat = 1.5
+    private let forceSmallerImage: Bool
     
-    public init(pickupType: DayPickupTypeString, size: CGFloat, forceEmoji: Bool = false, isWidget: Bool = false) {
+    public init(
+        pickupType: DayPickupTypeString,
+        size: CGFloat,
+        forceEmoji: Bool = false,
+        isWidget: Bool = false,
+        forceSmallerImage: Bool = false
+    ) {
         self.pickupType = pickupType
         self.size = size
         self.forceEmoji = forceEmoji
         self.isWidget = isWidget
+        self.forceSmallerImage = forceSmallerImage
     }
 
     public var body: some View {
@@ -20,13 +28,32 @@ public struct PickupSymbolView: View {
                 // Force emoji mode
                 Text(pickupType.emoji)
                     .font(.system(size: size))
+            } else if !pickupType.imageName(forceSmall: forceSmallerImage).isEmpty {
+                // Try to load custom images first (main priority)
+                Group {
+                    if let uiImage = loadImageFromAnyBundle(named: pickupType.imageName(forceSmall: forceSmallerImage)) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: size * imageMultiplier, height: size * imageMultiplier)
+                    } else if let sfSymbolName = pickupType.sfSymbolName {
+                        // Fallback to SF Symbol if image not found
+                        Image(systemName: sfSymbolName)
+                            .font(.system(size: size * 0.8))
+                            .foregroundColor(isWidget ? .white : symbolColor)
+                    } else {
+                        // Final fallback to emoji
+                        Text(pickupType.emoji)
+                            .font(.system(size: size))
+                    }
+                }
             } else if let sfSymbolName = pickupType.sfSymbolName {
-                // Use SF Symbol for widgets (always available)
+                // Use SF Symbol if no image name
                 Image(systemName: sfSymbolName)
                     .font(.system(size: size * 0.8))
                     .foregroundColor(isWidget ? .white : symbolColor)
             } else {
-                // Fallback to emoji
+                // Final fallback to emoji
                 Text(pickupType.emoji)
                     .font(.system(size: size))
             }
@@ -46,7 +73,56 @@ public struct PickupSymbolView: View {
             return .red
         }
     }
+    
+    // Helper function to try loading image from multiple bundle sources
+    private func loadImageFromAnyBundle(named imageName: String) -> UIImage? {
+        #if DEBUG
+        print("🔍 Attempting to load image: '\(imageName)'")
+        print(ImageDebugHelper.debugImageLoading(imageName: imageName))
+        #endif
+        
+        // Try main bundle first
+        if let image = UIImage(named: imageName, in: Bundle.main, compatibleWith: nil) {
+            #if DEBUG
+            print("✅ Loaded '\(imageName)' from main bundle")
+            #endif
+            return image
+        }
+        
+        // Try TruckeeTrashKit bundle
+        if let image = UIImage(named: imageName, in: Bundle(for: TruckeeTrashKit.self), compatibleWith: nil) {
+            #if DEBUG
+            print("✅ Loaded '\(imageName)' from TruckeeTrashKit bundle")
+            #endif
+            return image
+        }
+        
+        // Try current bundle (for widget extension)
+        if let image = UIImage(named: imageName, in: Bundle(for: Token.self), compatibleWith: nil) {
+            #if DEBUG
+            print("✅ Loaded '\(imageName)' from current bundle")
+            #endif
+            return image
+        }
+        
+        // Try loading from all available bundles
+        for bundle in Bundle.allBundles {
+            if let image = UIImage(named: imageName, in: bundle, compatibleWith: nil) {
+                #if DEBUG
+                print("✅ Loaded '\(imageName)' from bundle: \(bundle.bundleIdentifier ?? "unknown")")
+                #endif
+                return image
+            }
+        }
+        
+        #if DEBUG
+        print("❌ Failed to load image '\(imageName)' from any bundle")
+        #endif
+        return nil
+    }
 }
+
+private final class Token {}
 
 #if DEBUG
 struct PickupSymbolView_Previews: PreviewProvider {

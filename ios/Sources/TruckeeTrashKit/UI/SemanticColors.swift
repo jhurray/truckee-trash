@@ -1,5 +1,14 @@
 import SwiftUI
 
+private extension UIColor {
+    convenience init(hex: UInt32, alpha: CGFloat = 1.0) {
+        let red = CGFloat((hex & 0xFF0000) >> 16) / 255.0
+        let green = CGFloat((hex & 0x00FF00) >> 8) / 255.0
+        let blue = CGFloat(hex & 0x0000FF) / 255.0
+        self.init(red: red, green: green, blue: blue, alpha: alpha)
+    }
+}
+
 public extension Color {
     
     // MARK: - Background Colors
@@ -52,9 +61,9 @@ public extension Color {
     static let appOnboardingBackground = Color(UIColor { traitCollection in
         switch traitCollection.userInterfaceStyle {
         case .dark:
-            return UIColor.black.withAlphaComponent(0.9)
+            return UIColor.black.withAlphaComponent(1)
         default:
-            return UIColor.systemBlue.withAlphaComponent(0.05)
+            return UIColor.systemBlue.withAlphaComponent(0.25)
         }
     })
     
@@ -173,26 +182,27 @@ public extension Color {
     
     // MARK: - Gradient Backgrounds
     
+    static let appOnboardingGradientStart = Color(UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .dark:
+            return UIColor(hex: 0x4A90E2, alpha: 0.3)
+        default:
+            return UIColor(hex: 0x4A90E2, alpha: 0.8)
+        }
+    })
+    
+    static let appOnboardingGradientEnd = Color(UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .dark:
+            return UIColor(hex: 0x50E3C2, alpha: 0.3)
+        default:
+            return UIColor(hex: 0x50E3C2, alpha: 0.8)
+        }
+    })
+    
     static func appOnboardingGradient() -> LinearGradient {
         return LinearGradient(
-            gradient: Gradient(colors: [
-                Color(UIColor { traitCollection in
-                    switch traitCollection.userInterfaceStyle {
-                    case .dark:
-                        return UIColor.systemBlue.withAlphaComponent(0.2)
-                    default:
-                        return UIColor.systemBlue.withAlphaComponent(0.15)
-                    }
-                }),
-                Color(UIColor { traitCollection in
-                    switch traitCollection.userInterfaceStyle {
-                    case .dark:
-                        return UIColor.systemGreen.withAlphaComponent(0.2)
-                    default:
-                        return UIColor.systemGreen.withAlphaComponent(0.15)
-                    }
-                })
-            ]),
+            gradient: Gradient(colors: [appOnboardingGradientStart, appOnboardingGradientEnd]),
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
@@ -220,8 +230,6 @@ public extension Color {
 }
 
 #Preview {
-    ZStack {
-        Color.appOnboardingGradient()
-    }
-    .ignoresSafeArea()
+    Color.appOnboardingGradient()
+        .ignoresSafeArea()
 }

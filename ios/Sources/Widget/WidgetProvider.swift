@@ -30,7 +30,7 @@ struct Provider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<PickupEntry>) -> ()) {
         // Get user's selected pickup day (default to Friday if not set)
-        let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5
+        let selectedPickupDay = SharedUserDefaults.selectedPickupDay
         
         let currentDate = apiClient.getCurrentTruckeeDate()
         let nextPickupDate = currentDate.nextOccurrence(of: selectedPickupDay)

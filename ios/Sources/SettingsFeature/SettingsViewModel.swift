@@ -2,6 +2,7 @@ import Foundation
 import Combine
 import UserNotifications
 import NotificationsService
+import TruckeeTrashKit
 
 extension Notification.Name {
     static let pickupDayChanged = Notification.Name("pickupDayChanged")
@@ -12,7 +13,7 @@ class SettingsViewModel: ObservableObject {
     private let notificationsService = NotificationsService()
     @Published var selectedPickupDay: Int {
         didSet {
-            UserDefaults.standard.set(selectedPickupDay, forKey: "selectedPickupDay")
+            SharedUserDefaults.selectedPickupDay = selectedPickupDay
             scheduleNotificationsIfNeeded()
             // Notify other parts of the app that pickup day changed
             NotificationCenter.default.post(name: .pickupDayChanged, object: nil)
@@ -21,7 +22,7 @@ class SettingsViewModel: ObservableObject {
     
     @Published var notificationsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
+            SharedUserDefaults.notificationsEnabled = notificationsEnabled
             if notificationsEnabled {
                 requestNotificationPermission()
             } else {
@@ -32,16 +33,16 @@ class SettingsViewModel: ObservableObject {
     
     @Published var notificationPreference: String {
         didSet {
-            UserDefaults.standard.set(notificationPreference, forKey: "notificationPreference")
+            SharedUserDefaults.notificationPreference = notificationPreference
             scheduleNotificationsIfNeeded()
         }
     }
     
     init() {
         // Load saved settings or use defaults
-        self.selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5 // Friday
-        self.notificationsEnabled = UserDefaults.standard.bool(forKey: "notificationsEnabled")
-        self.notificationPreference = UserDefaults.standard.string(forKey: "notificationPreference") ?? "evening_before"
+        self.selectedPickupDay = SharedUserDefaults.selectedPickupDay
+        self.notificationsEnabled = SharedUserDefaults.notificationsEnabled
+        self.notificationPreference = SharedUserDefaults.notificationPreference
     }
     
     private func requestNotificationPermission() {

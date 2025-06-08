@@ -180,7 +180,7 @@ extension LiveActivityService {
             return
         }
         
-        let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5
+        let selectedPickupDay = SharedUserDefaults.selectedPickupDay
         let weekday = Weekday(rawValue: selectedPickupDay)?.displayName ?? "Friday"
         
         if shouldShowLiveActivity(for: pickupInfo, nextPickupDate: nextPickupDate) {

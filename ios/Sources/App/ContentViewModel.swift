@@ -15,7 +15,12 @@ class ContentViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     #if DEBUG
-    @Published var testDate: Date? = nil
+    @Published var testDate: Date? = nil {
+        didSet {
+            // Save test date to SharedUserDefaults for widget access
+            SharedUserDefaults.debugTestDate = testDate
+        }
+    }
     @Published var isTestMode = false
     var currentDate: Date { testDate ?? Date() }
     var shouldReloadData: Bool = true
@@ -30,6 +35,15 @@ class ContentViewModel: ObservableObject {
     private var liveActivityService: LiveActivityService? = nil
     
     init() {
+        #if DEBUG
+        // Load test date from SharedUserDefaults if it exists
+        if SharedUserDefaults.debugTestModeEnabled,
+           let savedTestDate = SharedUserDefaults.debugTestDate {
+            self.testDate = savedTestDate
+            self.isTestMode = true
+        }
+        #endif
+        
         // Listen for pickup day changes
         NotificationCenter.default.publisher(for: .pickupDayChanged)
             .receive(on: DispatchQueue.main)
@@ -48,7 +62,7 @@ class ContentViewModel: ObservableObject {
         errorMessage = nil
         
         // Get user's selected pickup day (default to Friday if not set)
-        let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5 // Friday
+        let selectedPickupDay = SharedUserDefaults.selectedPickupDay
         
         // Calculate next occurrence of selected pickup day
         #if DEBUG
@@ -104,7 +118,7 @@ class ContentViewModel: ObservableObject {
     }
     
     func clearTestDate() {
-        testDate = nil
+        testDate = nil // This will trigger the didSet and clear UserDefaults
         isTestMode = false
         loadPickupInfo()
     }

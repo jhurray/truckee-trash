@@ -133,9 +133,14 @@ struct MainView: View {
                     )
                 }
             } else {
-                Color.appOnboardingGradient()
+                ZStack {
+                    Color.appOnboardingBackground
+                        .ignoresSafeArea()
+                    Color.appOnboardingGradient()
+                }
             }
         }
+        .animation(.smooth.speed(0.5), value: viewModel.pickupInfo)
     }
     
     #if DEBUG

@@ -3,6 +3,10 @@ import TruckeeTrashKit
 import SettingsFeature
 import NotificationsService
 
+#if DEBUG
+import TruckeeTrashKit
+#endif
+
 extension Notification.Name {
     static let resetAppSetup = Notification.Name("resetAppSetup")
 }
@@ -18,7 +22,7 @@ struct TruckeeTrashApp: App {
             return LiveActivityService()
         }
     }()
-    @State private var hasCompletedOnboarding = UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
+    @State private var hasCompletedOnboarding = SharedUserDefaults.hasCompletedOnboarding
     
     @MainActor
     var body: some Scene {
@@ -42,7 +46,17 @@ struct TruckeeTrashApp: App {
             .onReceive(NotificationCenter.default.publisher(for: .resetAppSetup)) { _ in
                 withAnimation(.easeInOut(duration: 0.5)) {
                     hasCompletedOnboarding = false
+                    SharedUserDefaults.hasCompletedOnboarding = false
                 }
+                
+                #if DEBUG
+                // Clear debug test date when resetting app
+                DebugTestDateHelper.clearTestDate()
+                #endif
+            }
+            .onAppear {
+                // Migrate from old UserDefaults to shared container on first launch
+                SharedUserDefaults.migrateFromStandardUserDefaults()
             }
         }
     }

@@ -56,16 +56,30 @@ struct SmallWidgetView: View {
             Spacer()
             
             // Big emoji
-            PickupSymbolView(pickupType: pickupData.pickupType, size: 50, isWidget: true)
+            PickupSymbolView(pickupType: pickupData.pickupType, size: 50)
                 .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
                 .minimumScaleFactor(0.2)
             
             // Compact message
-            Text(pickupData.compactMessage)
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(Color.appAlwaysLightText)
-                .shadow(color: Color.appTextShadow, radius: 1, x: 0, y: 1)
+            VStack(spacing: 2) {
+                Text(pickupData.compactMessage)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(Color.appAlwaysLightText)
+                    .shadow(color: Color.appTextShadow, radius: 1, x: 0, y: 1)
+                
+                #if DEBUG
+                if DebugTestDateHelper.isTestModeEnabled {
+                    Text("TEST")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 4)
+                        .background(Color.orange.opacity(0.2))
+                        .cornerRadius(3)
+                }
+                #endif
+            }
             
             Spacer()
         }
@@ -79,7 +93,7 @@ struct AccessoryWidgetView: View {
     var body: some View {
         VStack(spacing: 12) {
             // Big emoji
-            PickupSymbolView(pickupType: pickupData.pickupType, size: 35, forceEmoji: true, isWidget: true)
+            PickupSymbolView(pickupType: pickupData.pickupType, size: 35, forceEmoji: true)
                 .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
             
             // Compact message
@@ -106,7 +120,7 @@ struct MediumWidgetView: View {
             
             // Left side: Emoji
             VStack {
-                PickupSymbolView(pickupType: pickupData.pickupType, size: 60, isWidget: true)
+                PickupSymbolView(pickupType: pickupData.pickupType, size: 60)
                     .shadow(color: Color.appTextShadow, radius: 3, x: 0, y: 1)
             }
             .scaledToFit()
@@ -129,6 +143,19 @@ struct MediumWidgetView: View {
                         .shadow(color: Color.appTextShadow, radius: 2, x: 0, y: 1)
                         .minimumScaleFactor(0.5)
                 }
+                
+                #if DEBUG
+                if DebugTestDateHelper.isTestModeEnabled {
+                    Text("TEST MODE")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.orange.opacity(0.2))
+                        .cornerRadius(4)
+                }
+                #endif
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             

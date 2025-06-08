@@ -31,8 +31,8 @@ public class NotificationsService: ObservableObject {
         UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["TruckeeTrashPickupReminder"])
         
         // Get user settings
-        let selectedPickupDay = UserDefaults.standard.object(forKey: "selectedPickupDay") as? Int ?? 5 // Friday
-        let notificationsEnabled = UserDefaults.standard.bool(forKey: "notificationsEnabled")
+        let selectedPickupDay = SharedUserDefaults.selectedPickupDay
+        let notificationsEnabled = SharedUserDefaults.notificationsEnabled
         
         guard notificationsEnabled else { return }
         
@@ -60,7 +60,7 @@ public class NotificationsService: ObservableObject {
     }
     
     private func scheduleNotificationWithPickupInfo(_ result: Result<DayPickupInfo, ApiError>, selectedPickupDay: Int) {
-        let notificationTime = UserDefaults.standard.object(forKey: "notificationTime") as? Date ?? {
+        let notificationTime = SharedUserDefaults.shared.object(forKey: "notificationTime") as? Date ?? {
             let calendar = Calendar.current
             var components = DateComponents()
             components.hour = 19 // 7 PM
@@ -94,7 +94,7 @@ public class NotificationsService: ObservableObject {
         let timeComponents = calendar.dateComponents([.hour, .minute], from: notificationTime)
         
         // Get notification preference
-        let notificationPreferenceRaw = UserDefaults.standard.string(forKey: "notificationPreference") ?? "evening_before"
+        let notificationPreferenceRaw = SharedUserDefaults.notificationPreference
         let notificationPreference = NotificationPreference(rawValue: notificationPreferenceRaw) ?? .eveningBefore
         
         var dateComponents = DateComponents()
