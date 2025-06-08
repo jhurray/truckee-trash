@@ -29,8 +29,8 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <color key="tintColor" systemColor="viewFlipsideBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="BTu-oG-Tre" firstAttribute="centerX" secondItem="Bcu-3y-fUS" secondAttribute="centerX" id="XQe-mq-SOP"/>
-                            <constraint firstItem="BTu-oG-Tre" firstAttribute="centerY" secondItem="Bcu-3y-fUS" secondAttribute="centerY" id="c1L-ee-b7H"/>
+                            <constraint firstItem="BTu-oG-Tre" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="XQe-mq-SOP"/>
+                            <constraint firstItem="BTu-oG-Tre" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="12.666666666666742" id="c1L-ee-b7H"/>
                         </constraints>
                     </view>
                 </viewController>

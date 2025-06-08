@@ -3,10 +3,15 @@ import TruckeeTrashKit
 import SettingsFeature
 import NotificationsService
 
+enum SplashScreenPhase {
+    case idle, animating, removed
+}
+
 struct MainView: View {
     @StateObject private var viewModel: ContentViewModel
     @EnvironmentObject private var liveActivityService: LiveActivityService
     @State private var showingSettings = false
+    @State private var splashScreenPhase: SplashScreenPhase = .idle
     
     #if DEBUG
     @State private var showingTestDatePicker = false
@@ -57,6 +62,20 @@ struct MainView: View {
                     settingsButton
                         .padding(.bottom, max(geometry.safeAreaInsets.bottom, 32))
                 }
+                .overlay(alignment: .center) {
+                    if splashScreenPhase != .removed {
+                        SplashScreen(startAnimation: splashScreenPhase == .animating) {
+                            // When the splash animation is done, we animate the
+                            // state change that causes this view to be removed.
+                            withAnimation(.easeOut(duration: 0.25)) {
+                                self.splashScreenPhase = .removed
+                            }
+                        }
+                        .scaledToFill()
+                        .transition(.opacity)
+                    }
+                    
+                }
                 
                 // Top toolbar (debug only)
                 #if DEBUG
@@ -91,12 +110,14 @@ struct MainView: View {
             testDatePickerView
         }
         #endif
-        .onAppear {
+        .task {
             // Inject Live Activity service into view model
             if #available(iOS 16.1, *) {
                 viewModel.setLiveActivityService(liveActivityService)
             }
             viewModel.loadPickupInfo()
+            try? await Task.sleep(for: .seconds(0.5))
+            splashScreenPhase = .animating
         }
         .refreshable {
             viewModel.loadPickupInfo()

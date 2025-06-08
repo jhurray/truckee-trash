@@ -76,6 +76,15 @@ public extension Color {
         }
     })
     
+    static let appSplashBackground = Color(UIColor { traitCollection in
+        switch traitCollection.userInterfaceStyle {
+        case .dark:
+            return UIColor.systemBackground
+        default:
+            return UIColor.systemBackground
+        }
+    })
+    
     // MARK: - Text Colors
     
     static let appPrimaryText = Color(UIColor { traitCollection in
