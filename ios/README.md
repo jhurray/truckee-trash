@@ -1,6 +1,8 @@
 # Truckee Trash iOS App
 
 This is the iOS application for Truckee Trash, built with SwiftUI and Tuist.
+For web application instructions see [the root README](../README.md).
+
 
 ## Features
 
