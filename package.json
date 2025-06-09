@@ -10,7 +10,8 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "images:generate": "node scripts/generate-images.js"
+    "images:generate": "node scripts/generate-images.js && npm run ios:generate",
+    "ios:generate": "cd ios && tuist generate && cd .."
   },
   "repository": {
     "type": "git",
