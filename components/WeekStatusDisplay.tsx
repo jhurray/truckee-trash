@@ -25,9 +25,9 @@ export default function WeekStatusDisplay({ weekStatus, showFooter = true }: Wee
   const getSymbol = (status: string): { type: 'emoji' | 'image'; value: string } => {
     switch (status) {
       case 'recycling_week':
-        return { type: 'image', value: '/Recycling.png' };
+        return { type: 'image', value: '/Recycling-medium.png' };
       case 'yard_waste_week':
-        return { type: 'image', value: '/YardWaste.png' };
+        return { type: 'image', value: '/YardWaste-medium.png' };
       case 'normal_trash_week':
         return { type: 'emoji', value: '🗑️' };
       case 'no_pickup_week':

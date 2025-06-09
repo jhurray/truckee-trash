@@ -63,9 +63,9 @@ extension DayPickupTypeString {
     public func imageName(forceSmall: Bool = false) -> String {
         switch self {
         case .recycling:
-            return forceSmall ? "Recycling" :"Recycling-lg"
+            return "Recycling"
         case .yard_waste:
-            return forceSmall ? "YardWaste" : "YardWaste-lg"
+            return "YardWaste"
         default:
             return ""
         }
