@@ -92,6 +92,7 @@ export default function WeekStatusDisplay({ weekStatus, showFooter = true }: Wee
           >
             Official Truckee Calendar
           </a>
+          <a href="mailto:jhurray33@gmail.com">Contact Me</a>
         </footer>
       )}
     </div>

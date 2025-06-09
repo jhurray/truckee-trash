@@ -66,7 +66,11 @@ public struct SettingsView: View {
                         }
                     }
                 }
-                
+
+                Section {
+                    Link("Contact Me", destination: URL(string: "mailto:jhurray33@gmail.com")!)
+                }
+
                 Section {
                     Button("Reset App Setup") {
                         showingResetAlert = true
