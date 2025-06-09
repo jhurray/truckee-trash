@@ -1,12 +1,23 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "c8ccea8d-fe6c-4a58-995e-b068f898b60a.png",
-      "idiom" : "universal"
+      "filename": "Recycling.png",
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "Recycling@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Recycling@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

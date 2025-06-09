@@ -1,22 +1,56 @@
 {
-  "images" : [
+  "images": [
     {
-      "filename" : "iTunesArtwork@2x.png",
-      "idiom" : "universal"
+      "filename": "Logo-light.png",
+      "idiom": "universal",
+      "scale": "1x"
     },
     {
-      "appearances" : [
+      "filename": "Logo-dark.png",
+      "appearances": [
         {
-          "appearance" : "luminosity",
-          "value" : "dark"
+          "appearance": "luminosity",
+          "value": "dark"
         }
       ],
-      "filename" : "5b074199-0478-438c-8939-3bc640348748.png",
-      "idiom" : "universal"
+      "idiom": "universal",
+      "scale": "1x"
+    },
+    {
+      "filename": "Logo-light@2x.png",
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Logo-dark@2x.png",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ],
+      "idiom": "universal",
+      "scale": "2x"
+    },
+    {
+      "filename": "Logo-light@3x.png",
+      "idiom": "universal",
+      "scale": "3x"
+    },
+    {
+      "filename": "Logo-dark@3x.png",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ],
+      "idiom": "universal",
+      "scale": "3x"
     }
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
+  "info": {
+    "author": "xcode",
+    "version": 1
   }
 }

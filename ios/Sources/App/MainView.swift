@@ -17,14 +17,23 @@ struct MainView: View {
     @State private var showingTestDatePicker = false
     #endif
     
-    init() {
+    init(skipSplashScreen: Bool = false) {
         // This initializer will be used by the app and is guaranteed to run on the main actor.
         self._viewModel = StateObject(wrappedValue: ContentViewModel())
+        if skipSplashScreen {
+            splashScreenPhase = .removed
+        }
     }
 
-    init(viewModel: ContentViewModel) {
+    init(
+        viewModel: ContentViewModel,
+        skipSplashScreen: Bool = true
+    ) {
         // This initializer is for previews, allowing injection of a mock view model.
         self._viewModel = StateObject(wrappedValue: viewModel)
+        if skipSplashScreen {
+            splashScreenPhase = .removed
+        }
     }
     
     @MainActor
