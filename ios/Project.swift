@@ -1,15 +1,85 @@
 import ProjectDescription
 
+// MARK: - Project Configuration Constants
+
+private let organizationName = "TruckeeTrash"
+private let appBundleIdPrefix = "com.guaranteed.truckeetrash"
+private let frameworkBundleIdPrefix = "com.truckeetrash"
+private let deploymentTarget: DeploymentTargets = .iOS("17.0")
+private let developmentTeam = "43LEM8BQ2H"
+private let appVersion: Plist.Value = "1.0"
+private let buildNumber: Plist.Value = "3"
+
+// MARK: - Common Settings
+
+private let codeSigningSettings: SettingsDictionary = [
+    "DEVELOPMENT_TEAM": .string(developmentTeam),
+    "CODE_SIGN_STYLE": "Automatic"
+]
+
+private let frameworkSettings = Settings.settings(
+    base: ["DEFINES_MODULE": "YES"]
+)
+
+private let appSettings = Settings.settings(
+    base: codeSigningSettings,
+    configurations: [
+        .debug(name: "Debug", settings: [
+            "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) SIMULATOR_ONLY"
+        ]),
+        .release(name: "Release")
+    ]
+)
+
+// MARK: - Helper Functions
+
+private func makeFrameworkTarget(
+    name: String,
+    bundleIdSuffix: String,
+    sources: SourceFilesList,
+    dependencies: [TargetDependency] = []
+) -> Target {
+    return .target(
+        name: name,
+        destinations: .iOS,
+        product: .framework,
+        bundleId: "\(frameworkBundleIdPrefix).\(bundleIdSuffix)",
+        deploymentTargets: deploymentTarget,
+        sources: sources,
+        dependencies: dependencies,
+        settings: frameworkSettings
+    )
+}
+
+private func makeTestTarget(
+    name: String,
+    bundleIdSuffix: String,
+    sources: SourceFilesList,
+    dependencies: [TargetDependency]
+) -> Target {
+    return .target(
+        name: name,
+        destinations: .iOS,
+        product: .unitTests,
+        bundleId: "\(frameworkBundleIdPrefix).\(bundleIdSuffix)",
+        deploymentTargets: deploymentTarget,
+        sources: sources,
+        dependencies: dependencies
+    )
+}
+
+// MARK: - Project Definition
+
 let project = Project(
-    name: "TruckeeTrash",
+    name: organizationName,
     targets: [
         // Main iOS App
         .target(
             name: "TruckeeTrash",
             destinations: .iOS,
             product: .app,
-            bundleId: "com.guaranteed.truckeetrash",
-            deploymentTargets: .iOS("17.0"),
+            bundleId: appBundleIdPrefix,
+            deploymentTargets: deploymentTarget,
             infoPlist: .extendingDefault(
                 with: [
                     "UILaunchStoryboardName": "LaunchScreen",
@@ -17,8 +87,8 @@ let project = Project(
                         "UIInterfaceOrientationPortrait"
                     ],
                     "CFBundleDisplayName": "Truckee Trash",
-                    "CFBundleShortVersionString": "1.0",
-                    "CFBundleVersion": "3"
+                    "CFBundleShortVersionString": appVersion,
+                    "CFBundleVersion": buildNumber
                 ]
             ),
             sources: ["Sources/App/**"],
@@ -30,65 +100,35 @@ let project = Project(
                 .target(name: "NotificationsService"),
                 .target(name: "TruckeeTrashWidget")
             ],
-            settings: .settings(
-                base: [
-                    "DEVELOPMENT_TEAM": "43LEM8BQ2H",
-                    "CODE_SIGN_STYLE": "Automatic"
-                ],
-                configurations: [
-                    .debug(name: "Debug", settings: [
-                        "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "$(inherited) SIMULATOR_ONLY"
-                    ]),
-                    .release(name: "Release")
-                ]
-            )
+            settings: appSettings
         ),
         
         // Core Kit Framework
-        .target(
+        makeFrameworkTarget(
             name: "TruckeeTrashKit",
-            destinations: .iOS,
-            product: .framework,
-            bundleId: "com.truckeetrash.kit",
-            deploymentTargets: .iOS("17.0"),
-            sources: ["Sources/TruckeeTrashKit/**"],
-            dependencies: [],
-            settings: .settings(
-                base: ["DEFINES_MODULE": "YES"]
-            )
+            bundleIdSuffix: "kit",
+            sources: ["Sources/TruckeeTrashKit/**"]
         ),
         
         // Settings Feature
-        .target(
+        makeFrameworkTarget(
             name: "SettingsFeature",
-            destinations: .iOS,
-            product: .framework,
-            bundleId: "com.truckeetrash.settings",
-            deploymentTargets: .iOS("17.0"),
+            bundleIdSuffix: "settings",
             sources: ["Sources/SettingsFeature/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit"),
                 .target(name: "NotificationsService")
-            ],
-            settings: .settings(
-                base: ["DEFINES_MODULE": "YES"]
-            )
+            ]
         ),
         
         // Notifications Service
-        .target(
+        makeFrameworkTarget(
             name: "NotificationsService",
-            destinations: .iOS,
-            product: .framework,
-            bundleId: "com.truckeetrash.notifications",
-            deploymentTargets: .iOS("17.0"),
+            bundleIdSuffix: "notifications",
             sources: ["Sources/NotificationsService/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
-            ],
-            settings: .settings(
-                base: ["DEFINES_MODULE": "YES"]
-            )
+            ]
         ),
         
         // Widget Extension
@@ -96,15 +136,15 @@ let project = Project(
             name: "TruckeeTrashWidget",
             destinations: .iOS,
             product: .appExtension,
-            bundleId: "com.guaranteed.truckeetrash.widget",
-            deploymentTargets: .iOS("17.0"),
+            bundleId: "\(appBundleIdPrefix).widget",
+            deploymentTargets: deploymentTarget,
             infoPlist: .extendingDefault(
                 with: [
                     "CFBundleDisplayName": "Truckee Trash Widget",
                     "NSExtension": [
                         "NSExtensionPointIdentifier": "com.apple.widgetkit-extension"
                     ],
-                    "CFBundleVersion": "3"
+                    "CFBundleVersion": buildNumber
                 ]
             ),
             sources: ["Sources/Widget/**"],
@@ -113,21 +153,13 @@ let project = Project(
             dependencies: [
                 .target(name: "TruckeeTrashKit")
             ],
-            settings: .settings(
-                base: [
-                    "DEVELOPMENT_TEAM": "43LEM8BQ2H",
-                    "CODE_SIGN_STYLE": "Automatic"
-                ]
-            )
+            settings: .settings(base: codeSigningSettings)
         ),
         
         // Tests
-        .target(
+        makeTestTarget(
             name: "TruckeeTrashKitTests",
-            destinations: .iOS,
-            product: .unitTests,
-            bundleId: "com.truckeetrash.kit.tests",
-            deploymentTargets: .iOS("17.0"),
+            bundleIdSuffix: "kit.tests",
             sources: ["Tests/TruckeeTrashKitTests/**"],
             dependencies: [
                 .target(name: "TruckeeTrashKit")
