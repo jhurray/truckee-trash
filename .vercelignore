@@ -1,0 +1,8 @@
+# Ignore the entire iOS project directory
+ios/
+
+# Ignore markdown files like the README, as changes don't affect the build
+README.md
+
+# Ignore GitHub-specific files (like workflows)
+.github/
