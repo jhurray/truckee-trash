@@ -6,20 +6,17 @@ public struct PickupSymbolView: View {
     public let forceEmoji: Bool
     public let isWidget: Bool
     private let imageMultiplier: CGFloat = 1.5
-    private let forceSmallerImage: Bool
     
     public init(
         pickupType: DayPickupTypeString,
         size: CGFloat,
         forceEmoji: Bool = false,
-        isWidget: Bool = false,
-        forceSmallerImage: Bool = false
+        isWidget: Bool = false
     ) {
         self.pickupType = pickupType
         self.size = size
         self.forceEmoji = forceEmoji
         self.isWidget = isWidget
-        self.forceSmallerImage = forceSmallerImage
     }
 
     public var body: some View {
@@ -28,10 +25,10 @@ public struct PickupSymbolView: View {
                 // Force emoji mode
                 Text(pickupType.emoji)
                     .font(.system(size: size))
-            } else if !pickupType.imageName(forceSmall: forceSmallerImage).isEmpty {
+            } else if !pickupType.imageName().isEmpty {
                 // Try to load custom images first (main priority)
                 Group {
-                    if let uiImage = loadImageFromAnyBundle(named: pickupType.imageName(forceSmall: forceSmallerImage)) {
+                    if let uiImage = loadImageFromAnyBundle(named: pickupType.imageName()) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
