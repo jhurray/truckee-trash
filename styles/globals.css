@@ -131,6 +131,9 @@ body {
   border-radius: 6px;
   border: 1px solid rgba(255,255,255,0.2);
 }
+.week-status-footer a + a {
+  margin-left: 1rem;
+}
 
 .week-status-footer a:hover {
   color: white;
@@ -151,6 +154,9 @@ body {
   .week-status-footer a {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+  }
+  .week-status-footer a + a {
+    margin-left: 0.5rem;
   }
 }
 
