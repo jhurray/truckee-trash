@@ -128,9 +128,6 @@ struct MainView: View {
             try? await Task.sleep(for: .seconds(0.5))
             splashScreenPhase = .animating
         }
-        .refreshable {
-            viewModel.loadPickupInfo()
-        }
     }
     
     private var backgroundGradient: some View {
