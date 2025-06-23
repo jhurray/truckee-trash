@@ -7,8 +7,8 @@ private let appBundleIdPrefix = "com.guaranteed.truckeetrash"
 private let frameworkBundleIdPrefix = "com.truckeetrash"
 private let deploymentTarget: DeploymentTargets = .iOS("17.0")
 private let developmentTeam = "43LEM8BQ2H"
-private let appVersion: Plist.Value = "1.0"
-private let buildNumber: Plist.Value = "4"
+private let appVersion: Plist.Value = "1.1"
+private let buildNumber: Plist.Value = "5"
 
 // MARK: - Common Settings
 
@@ -162,6 +162,16 @@ let project = Project(
             bundleIdSuffix: "kit.tests",
             sources: ["Tests/TruckeeTrashKitTests/**"],
             dependencies: [
+                .target(name: "TruckeeTrashKit")
+            ]
+        ),
+
+        makeTestTarget(
+            name: "NotificationsServiceTests",
+            bundleIdSuffix: "notifications.tests",
+            sources: ["Tests/NotificationsServiceTests/**"],
+            dependencies: [
+                .target(name: "NotificationsService"),
                 .target(name: "TruckeeTrashKit")
             ]
         )

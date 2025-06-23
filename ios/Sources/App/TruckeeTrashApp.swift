@@ -23,6 +23,7 @@ struct TruckeeTrashApp: App {
         }
     }()
     @State private var hasCompletedOnboarding = SharedUserDefaults.hasCompletedOnboarding
+    @Environment(\.scenePhase) private var scenePhase
     
     @MainActor
     var body: some Scene {
@@ -57,6 +58,12 @@ struct TruckeeTrashApp: App {
             .onAppear {
                 // Migrate from old UserDefaults to shared container on first launch
                 SharedUserDefaults.migrateFromStandardUserDefaults()
+            }
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .active {
+                    // Refresh notifications when app becomes active to ensure they're up to date
+                    notificationsService.refreshNotificationsIfNeeded()
+                }
             }
         }
     }

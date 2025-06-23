@@ -1,6 +1,6 @@
 import Foundation
 
-public class ApiClient {
+open class ApiClient {
     private let baseURL: String
     private let session: URLSession
     
@@ -18,9 +18,27 @@ public class ApiClient {
         self.session = URLSession.shared
     }
     
+    /// Get the current date in Truckee timezone (respects debug test date)
+    open func getCurrentTruckeeDate() -> Date {
+        #if DEBUG
+        // Use debug test date if available
+        let now = DebugTestDateHelper.getCurrentDate()
+        #else
+        let now = Date()
+        #endif
+        
+        let calendar = Calendar.current
+        var components = calendar.dateComponents(in: truckeeTimeZone, from: now)
+        components.hour = 0
+        components.minute = 0
+        components.second = 0
+        components.nanosecond = 0
+        return calendar.date(from: components) ?? now
+    }
+    
     // MARK: - Public API Methods
     
-    public func fetchDayPickupType(for date: Date, completion: @escaping (Result<DayPickupInfo, ApiError>) -> Void) {
+    open func fetchDayPickupType(for date: Date, completion: @escaping (Result<DayPickupInfo, ApiError>) -> Void) {
         let dateString = dateFormatter.string(from: date)
         fetchDayPickupType(for: dateString, completion: completion)
     }
@@ -91,24 +109,6 @@ public class ApiClient {
 // MARK: - Convenience Extensions
 
 extension ApiClient {
-    /// Get the current date in Truckee timezone (respects debug test date)
-    public func getCurrentTruckeeDate() -> Date {
-        #if DEBUG
-        // Use debug test date if available
-        let now = DebugTestDateHelper.getCurrentDate()
-        #else
-        let now = Date()
-        #endif
-        
-        let calendar = Calendar.current
-        var components = calendar.dateComponents(in: truckeeTimeZone, from: now)
-        components.hour = 0
-        components.minute = 0
-        components.second = 0
-        components.nanosecond = 0
-        return calendar.date(from: components) ?? now
-    }
-    
     /// Format a date as YYYY-MM-DD string in Truckee timezone
     public func formatDateForAPI(_ date: Date) -> String {
         return dateFormatter.string(from: date)
