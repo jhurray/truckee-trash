@@ -175,5 +175,18 @@ let project = Project(
                 .target(name: "TruckeeTrashKit")
             ]
         )
+    ],
+    schemes: [
+        .scheme(
+            name: "TruckeeTrash",
+            shared: true,
+            buildAction: .buildAction(targets: ["TruckeeTrash"]),
+            testAction: .targets([
+                "TruckeeTrashKitTests",
+                "NotificationsServiceTests"
+            ]),
+            runAction: .runAction(executable: "TruckeeTrash"),
+            archiveAction: .archiveAction(configuration: .release)
+        )
     ]
 )
