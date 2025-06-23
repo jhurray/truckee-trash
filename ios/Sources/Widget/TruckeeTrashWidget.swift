@@ -56,7 +56,7 @@ struct SmallWidgetView: View {
             Spacer()
             
             // Big emoji
-            PickupSymbolView(pickupType: pickupData.pickupType, size: 50)
+            PickupSymbolView(pickupType: pickupData.pickupType, size: 70)
                 .shadow(color: Color.appTextShadow.opacity(0.5), radius: 2, x: 0, y: 1)
                 .minimumScaleFactor(0.2)
             
@@ -120,7 +120,7 @@ struct MediumWidgetView: View {
             
             // Left side: Emoji
             VStack {
-                PickupSymbolView(pickupType: pickupData.pickupType, size: 60)
+                PickupSymbolView(pickupType: pickupData.pickupType, size: 70)
                     .shadow(color: Color.appTextShadow, radius: 3, x: 0, y: 1)
             }
             .scaledToFit()
