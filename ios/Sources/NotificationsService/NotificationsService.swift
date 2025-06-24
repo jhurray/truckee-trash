@@ -135,11 +135,11 @@ public class NotificationsService: ObservableObject {
         case .success(let pickupInfo):
             switch pickupInfo.pickupType {
             case .recycling:
-                content.body = "\(dayReference) is Trash Day. It's also Recycling Day!"
+                content.body = "\(dayReference) is a Recycling Day. Don't forget to put out your bins!"
             case .yard_waste:
-                content.body = "\(dayReference) is Yard Waste Day. Don't forget your yard waste!"
+                content.body = "\(dayReference) is a Yard Waste Day. Don't forget to put out your bins!"
             case .trash_only:
-                content.body = "\(dayReference) is Trash Day."
+                content.body = "\(dayReference) is Trash Day. Don't forget to put out your bins!"
             case .no_pickup:
                 content.body = "No pickup scheduled for \(dayReference.lowercased())."
             }

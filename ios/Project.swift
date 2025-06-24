@@ -7,8 +7,8 @@ private let appBundleIdPrefix = "com.guaranteed.truckeetrash"
 private let frameworkBundleIdPrefix = "com.truckeetrash"
 private let deploymentTarget: DeploymentTargets = .iOS("17.0")
 private let developmentTeam = "43LEM8BQ2H"
-private let appVersion: Plist.Value = "1.1"
-private let buildNumber: Plist.Value = "5"
+private let appVersion: Plist.Value = "1.2"
+private let buildNumber: Plist.Value = "6"
 
 // MARK: - Common Settings
 
