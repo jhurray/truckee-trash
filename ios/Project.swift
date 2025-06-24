@@ -144,6 +144,7 @@ let project = Project(
                     "NSExtension": [
                         "NSExtensionPointIdentifier": "com.apple.widgetkit-extension"
                     ],
+                    "CFBundleShortVersionString": appVersion,
                     "CFBundleVersion": buildNumber
                 ]
             ),
